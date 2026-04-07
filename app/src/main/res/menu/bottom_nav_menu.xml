@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_blocked_apps"
+        android:icon="@drawable/ic_apps"
+        android:title="@string/nav_blocked_apps" />
+
+    <item
+        android:id="@+id/nav_geofence"
+        android:icon="@drawable/ic_location"
+        android:title="@string/nav_geofence" />
+
+</menu>

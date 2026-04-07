@@ -1,3 +1,55 @@
 <resources>
     <string name="app_name">Anchor</string>
+
+    <!-- Accessibility Service -->
+    <string name="accessibility_service_label">Anchor App Blocker</string>
+    <string name="accessibility_service_description">Anchor monitors which app is in the foreground and blocks distracting apps when you are inside your focus zone.</string>
+
+    <!-- Block Activity -->
+    <string name="block_title">Focus Zone Active</string>
+    <string name="block_subtitle">This app is blocked while you\'re in your focus zone. Stay focused!</string>
+    <string name="go_home">Go Home</string>
+    <string name="block_icon_desc">Blocked icon</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_blocked_apps">Blocked Apps</string>
+    <string name="nav_geofence">Geofence</string>
+
+    <!-- Blocked Apps Fragment -->
+    <string name="blocked_apps_title">Blocked Apps</string>
+    <string name="search_apps_hint">Search apps</string>
+    <string name="no_apps_found">No apps found</string>
+    <string name="app_icon_desc">App icon</string>
+
+    <!-- Geofence Fragment -->
+    <string name="geofence_title">Focus Zone</string>
+    <string name="geofence_status">Geofence Status</string>
+    <string name="no_geofence_set">No geofence set</string>
+    <string name="set_geofence_heading">Set Up Focus Zone</string>
+    <string name="address_hint">Enter address or location</string>
+    <string name="radius_default_label">Radius: 200m</string>
+    <string name="radius_label_format">Radius: %dm</string>
+    <string name="set_geofence">Set Geofence</string>
+    <string name="remove_geofence">Remove Geofence</string>
+    <string name="geofence_active_format">%1$s — %2$dm radius</string>
+    <string name="inside_geofence">You are INSIDE the focus zone — blocking is active</string>
+    <string name="outside_geofence">You are OUTSIDE the focus zone — blocking is inactive</string>
+    <string name="address_required">Please enter an address</string>
+    <string name="address_not_found">Could not find that address. Please try a more specific location.</string>
+    <string name="geofence_set_success">Geofence set successfully!</string>
+    <string name="geofence_set_failed">Failed to set geofence: %s</string>
+    <string name="geofence_removed">Geofence removed</string>
+    <string name="geofence_remove_failed">Failed to remove geofence: %s</string>
+    <string name="geocoder_error">Could not connect to geocoding service. Check your internet connection.</string>
+
+    <!-- Accessibility Dialog -->
+    <string name="accessibility_dialog_title">Enable Anchor Service</string>
+    <string name="accessibility_dialog_message">Anchor needs accessibility access to detect and block apps when you\'re in your focus zone.\n\nPlease enable \"Anchor App Blocker\" in Accessibility settings.</string>
+    <string name="open_settings">Open Settings</string>
+    <string name="later">Later</string>
+
+    <!-- Background Location Dialog -->
+    <string name="bg_location_dialog_title">Background Location</string>
+    <string name="bg_location_dialog_message">Anchor needs \"Allow all the time\" location access to monitor your geofence even when the app is in the background.\n\nOn the next screen, select \"Allow all the time\".</string>
+    <string name="grant">Grant</string>
 </resources>

@@ -1,58 +1,56 @@
-package com.example.anchor // Change to your actual package name
+package com.example.anchor
 
 import android.accessibilityservice.AccessibilityService
-import android.view.accessibility.AccessibilityEvent
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.util.Log
+import android.view.accessibility.AccessibilityEvent
 
 class AppBlockerService : AccessibilityService() {
 
-    // Hardcoded for testing. Later, this will be populated by your Geofence logic.
-    private val blockedApps = listOf(
-        "com.instagram.android",
-        "com.zhiliaoapp.musically", // TikTok
-        "com.twitter.android"
-    )
+    private lateinit var prefs: SharedPreferences
 
-    // Flag to toggle blocking on/off (controlled by your geofence later)
-    private var isBlockingActive = true
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        prefs = getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
+        Log.d(TAG, "AppBlockerService connected")
+    }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (!isBlockingActive || event == null) return
+        if (event == null) return
+        if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
 
-        // We only care when the window state changes (an app comes to the foreground)
-        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            val packageName = event.packageName?.toString() ?: return
+        val packageName = event.packageName?.toString() ?: return
 
-            Log.d("AppBlocker", "App launched: $packageName")
+        if (packageName == applicationContext.packageName) return
 
-            if (blockedApps.contains(packageName)) {
-                Log.d("AppBlocker", "Blocked app detected! Executing block.")
-                executeBlock()
-            }
+        val isInsideGeofence = prefs.getBoolean(AnchorPrefs.KEY_IS_INSIDE_GEOFENCE, false)
+        val geofenceActive = prefs.getBoolean(AnchorPrefs.KEY_GEOFENCE_ACTIVE, false)
+
+        if (!geofenceActive || !isInsideGeofence) return
+
+        val blockedApps = prefs.getStringSet(AnchorPrefs.KEY_BLOCKED_APPS, emptySet()) ?: emptySet()
+
+        if (blockedApps.contains(packageName)) {
+            Log.d(TAG, "Blocked app detected: $packageName — launching BlockActivity")
+            launchBlockScreen(packageName)
         }
     }
 
-    private fun executeBlock() {
-        // Option 1: The "Kick to Home Screen" method (Simple & requires no extra permissions)
-        val homeIntent = Intent(Intent.ACTION_MAIN).apply {
-            addCategory(Intent.CATEGORY_HOME)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-        startActivity(homeIntent)
-
-        /* // Option 2: The "Launch Block Screen" method (Uncomment to use)
-        // You'll need to create a BlockActivity class first!
-        val blockIntent = Intent(this, BlockActivity::class.java).apply {
+    private fun launchBlockScreen(blockedPackage: String) {
+        val intent = Intent(this, BlockActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            putExtra("BLOCKED_MESSAGE", "You're in the geofence. Get back to work!")
+            putExtra(BlockActivity.EXTRA_BLOCKED_PACKAGE, blockedPackage)
         }
-        startActivity(blockIntent)
-        */
+        startActivity(intent)
     }
 
     override fun onInterrupt() {
-        // Called if the system interrupts the service. Usually left blank.
-        Log.d("AppBlocker", "Service Interrupted")
+        Log.d(TAG, "Service interrupted")
+    }
+
+    companion object {
+        private const val TAG = "AppBlockerService"
     }
 }

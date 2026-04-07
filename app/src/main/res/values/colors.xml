@@ -2,4 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="anchor_primary">#FF1565C0</color>
+    <color name="anchor_primary_dark">#FF0D47A1</color>
+    <color name="anchor_secondary">#FF26A69A</color>
 </resources>
