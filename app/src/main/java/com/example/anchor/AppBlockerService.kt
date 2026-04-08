@@ -11,6 +11,15 @@ class AppBlockerService : AccessibilityService() {
 
     private lateinit var prefs: SharedPreferences
 
+    private val ignoredPackages = setOf(
+        "com.android.systemui",
+        "com.android.launcher",
+        "com.android.launcher3",
+        "com.google.android.apps.nexuslauncher",
+        "com.google.android.inputmethod.latin",
+        "com.samsung.android.honeyboard"
+    )
+
     override fun onServiceConnected() {
         super.onServiceConnected()
         prefs = getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
@@ -24,9 +33,12 @@ class AppBlockerService : AccessibilityService() {
         val packageName = event.packageName?.toString() ?: return
 
         if (packageName == applicationContext.packageName) return
+        if (ignoredPackages.contains(packageName)) return
 
-        val isInsideGeofence = prefs.getBoolean(AnchorPrefs.KEY_IS_INSIDE_GEOFENCE, false)
         val geofenceActive = prefs.getBoolean(AnchorPrefs.KEY_GEOFENCE_ACTIVE, false)
+        val isInsideGeofence = prefs.getBoolean(AnchorPrefs.KEY_IS_INSIDE_GEOFENCE, false)
+
+        Log.d(TAG, "Window changed: pkg=$packageName, fenceActive=$geofenceActive, inside=$isInsideGeofence")
 
         if (!geofenceActive || !isInsideGeofence) return
 

@@ -5,18 +5,23 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
 class GeofenceManager(private val context: Context) {
 
     private val geofencingClient: GeofencingClient =
         LocationServices.getGeofencingClient(context)
+
+    private val fusedLocationClient: FusedLocationProviderClient =
+        LocationServices.getFusedLocationProviderClient(context)
 
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
@@ -63,6 +68,7 @@ class GeofenceManager(private val context: Context) {
                 addOnSuccessListener {
                     Log.d(TAG, "Geofence added: $requestId at ($lat, $lng) r=${radiusMeters}m")
                     saveGeofenceToPrefs(lat, lng, radiusMeters)
+                    checkIfAlreadyInsideGeofence(lat, lng, radiusMeters)
                     onSuccess()
                 }
                 addOnFailureListener { e ->
@@ -73,6 +79,39 @@ class GeofenceManager(private val context: Context) {
         } catch (e: SecurityException) {
             Log.e(TAG, "SecurityException adding geofence", e)
             onFailure(e)
+        }
+    }
+
+    /**
+     * INITIAL_TRIGGER_ENTER from Play Services can be delayed by minutes.
+     * Immediately check the device's last known location and set the
+     * is_inside_geofence flag if the user is already within the radius.
+     */
+    private fun checkIfAlreadyInsideGeofence(fenceLat: Double, fenceLng: Double, radiusMeters: Float) {
+        try {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                if (location == null) {
+                    Log.d(TAG, "Last location is null — cannot do immediate inside-check")
+                    return@addOnSuccessListener
+                }
+
+                val fenceLocation = Location("geofence").apply {
+                    latitude = fenceLat
+                    longitude = fenceLng
+                }
+
+                val distance = location.distanceTo(fenceLocation)
+                val inside = distance <= radiusMeters
+
+                Log.d(TAG, "Immediate location check: distance=${distance}m, radius=${radiusMeters}m, inside=$inside")
+
+                context.getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
+                    .edit()
+                    .putBoolean(AnchorPrefs.KEY_IS_INSIDE_GEOFENCE, inside)
+                    .apply()
+            }
+        } catch (e: SecurityException) {
+            Log.e(TAG, "SecurityException checking current location", e)
         }
     }
 
