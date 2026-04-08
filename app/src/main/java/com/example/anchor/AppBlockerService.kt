@@ -43,11 +43,42 @@ class AppBlockerService : AccessibilityService() {
         if (!geofenceActive || !isInsideGeofence) return
 
         val blockedApps = prefs.getStringSet(AnchorPrefs.KEY_BLOCKED_APPS, emptySet()) ?: emptySet()
-
-        if (blockedApps.contains(packageName)) {
-            Log.d(TAG, "Blocked app detected: $packageName — launching BlockActivity")
-            launchBlockScreen(packageName)
+        val inBlockedSet = blockedApps.contains(packageName)
+        val jailKey = AnchorPrefs.jailbreakUntilKey(packageName)
+        var jailUntil = prefs.getLong(jailKey, 0L)
+        val now = System.currentTimeMillis()
+        if (jailUntil > 0 && jailUntil <= now) {
+            prefs.edit().remove(jailKey).apply()
+            jailUntil = 0L
         }
+        val jailbreakActive = jailUntil > now
+
+        // #region agent log
+        AnchorDebugLog.log(
+            hypothesisId = "H1",
+            location = "AppBlockerService.kt:onAccessibilityEvent",
+            message = "block_decision",
+            data = mapOf(
+                "pkg" to packageName,
+                "geofenceActive" to geofenceActive,
+                "inside" to isInsideGeofence,
+                "inBlockedSet" to inBlockedSet,
+                "jailUntil" to jailUntil,
+                "now" to now,
+                "jailbreakActive" to jailbreakActive,
+                "willLaunchBlock" to (inBlockedSet && !jailbreakActive)
+            )
+        )
+        // #endregion
+
+        if (!inBlockedSet) return
+        if (jailbreakActive) {
+            Log.d(TAG, "Jailbreak window active for $packageName until $jailUntil — skip block")
+            return
+        }
+
+        Log.d(TAG, "Blocked app detected: $packageName — launching BlockActivity")
+        launchBlockScreen(packageName)
     }
 
     private fun launchBlockScreen(blockedPackage: String) {
