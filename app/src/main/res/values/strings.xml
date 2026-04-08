@@ -10,6 +10,10 @@
     <string name="block_subtitle">This app is blocked while you\'re in your focus zone. Stay focused!</string>
     <string name="go_home">Go Home</string>
     <string name="block_icon_desc">Blocked icon</string>
+    <string name="breathing_hint">Breathe in and out with the circle</string>
+    <string name="breathing_circle_desc">Breathing guide</string>
+    <string name="jailbreak_open_app">Open app anyway</string>
+    <string name="jailbreak_launch_failed">Could not open that app from here.</string>
 
     <!-- Bottom Navigation -->
     <string name="nav_blocked_apps">Blocked Apps</string>
