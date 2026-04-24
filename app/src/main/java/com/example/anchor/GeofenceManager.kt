@@ -9,11 +9,15 @@ import android.location.Location
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import java.util.concurrent.TimeUnit
 
 class GeofenceManager(private val context: Context) {
 
@@ -69,6 +73,7 @@ class GeofenceManager(private val context: Context) {
                     Log.d(TAG, "Geofence added: $requestId at ($lat, $lng) r=${radiusMeters}m")
                     saveGeofenceToPrefs(lat, lng, radiusMeters)
                     checkIfAlreadyInsideGeofence(lat, lng, radiusMeters)
+                    scheduleLocationRefreshWork()
                     onSuccess()
                 }
                 addOnFailureListener { e ->
@@ -94,25 +99,27 @@ class GeofenceManager(private val context: Context) {
                     Log.d(TAG, "Last location is null — cannot do immediate inside-check")
                     return@addOnSuccessListener
                 }
-
-                val fenceLocation = Location("geofence").apply {
-                    latitude = fenceLat
-                    longitude = fenceLng
-                }
-
-                val distance = location.distanceTo(fenceLocation)
-                val inside = distance <= radiusMeters
-
-                Log.d(TAG, "Immediate location check: distance=${distance}m, radius=${radiusMeters}m, inside=$inside")
-
-                context.getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
-                    .edit()
-                    .putBoolean(AnchorPrefs.KEY_IS_INSIDE_GEOFENCE, inside)
-                    .apply()
+                applyInsideStateFromLocation(context, fenceLat, fenceLng, radiusMeters, location, TAG)
             }
         } catch (e: SecurityException) {
             Log.e(TAG, "SecurityException checking current location", e)
         }
+    }
+
+    private fun scheduleLocationRefreshWork() {
+        val request = PeriodicWorkRequestBuilder<GeofenceLocationRefreshWorker>(
+            LOCATION_REFRESH_INTERVAL_MINUTES,
+            TimeUnit.MINUTES
+        ).build()
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            GeofenceLocationRefreshWorker.UNIQUE_WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            request
+        )
+    }
+
+    private fun cancelLocationRefreshWork() {
+        WorkManager.getInstance(context).cancelUniqueWork(GeofenceLocationRefreshWorker.UNIQUE_WORK_NAME)
     }
 
     fun removeGeofence(
@@ -122,6 +129,7 @@ class GeofenceManager(private val context: Context) {
         geofencingClient.removeGeofences(geofencePendingIntent).run {
             addOnSuccessListener {
                 Log.d(TAG, "Geofences removed")
+                cancelLocationRefreshWork()
                 clearGeofencePrefs()
                 onSuccess()
             }
@@ -188,6 +196,32 @@ class GeofenceManager(private val context: Context) {
         private const val TAG = "GeofenceManager"
         const val GEOFENCE_ID = "anchor_geofence"
         private const val LOITERING_DELAY_MS = 30_000
+        /** WorkManager minimum periodic interval. */
+        private const val LOCATION_REFRESH_INTERVAL_MINUTES = 15L
         const val DEFAULT_RADIUS = 200f
+
+        fun applyInsideStateFromLocation(
+            context: Context,
+            fenceLat: Double,
+            fenceLng: Double,
+            radiusMeters: Float,
+            location: Location,
+            logTag: String
+        ) {
+            val fenceLocation = Location("geofence").apply {
+                latitude = fenceLat
+                longitude = fenceLng
+            }
+            val distance = location.distanceTo(fenceLocation)
+            val inside = distance <= radiusMeters
+            Log.d(
+                logTag,
+                "Inside check: distance=${distance}m, radius=${radiusMeters}m, inside=$inside"
+            )
+            context.getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(AnchorPrefs.KEY_IS_INSIDE_GEOFENCE, inside)
+                .apply()
+        }
     }
 }
