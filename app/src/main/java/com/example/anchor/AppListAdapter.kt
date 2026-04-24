@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.materialswitch.MaterialSwitch
 
 class AppListAdapter(
@@ -26,8 +27,10 @@ class AppListAdapter(
     }
 
     inner class AppViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val card: MaterialCardView = itemView as MaterialCardView
         private val icon: ImageView = itemView.findViewById(R.id.ivAppIcon)
         private val name: TextView = itemView.findViewById(R.id.tvAppName)
+        private val blockedLabel: TextView = itemView.findViewById(R.id.tvBlockedIndicator)
         private val switch: MaterialSwitch = itemView.findViewById(R.id.switchBlock)
 
         fun bind(app: AppInfo) {
@@ -35,10 +38,16 @@ class AppListAdapter(
             name.text = app.name
 
             switch.setOnCheckedChangeListener(null)
-            switch.isChecked = blockedApps.contains(app.packageName)
+            val blocked = blockedApps.contains(app.packageName)
+            switch.isChecked = blocked
+            blockedLabel.visibility = if (blocked) View.VISIBLE else View.GONE
+
             switch.setOnCheckedChangeListener { _, isChecked ->
                 onToggle(app.packageName, isChecked)
+                blockedLabel.visibility = if (isChecked) View.VISIBLE else View.GONE
             }
+
+            card.setOnClickListener { switch.isChecked = !switch.isChecked }
         }
     }
 

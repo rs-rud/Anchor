@@ -2,7 +2,68 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="anchor_primary">#FF1565C0</color>
-    <color name="anchor_primary_dark">#FF0D47A1</color>
-    <color name="anchor_secondary">#FF26A69A</color>
+
+    <!-- Anchor brand palette: deep ocean + warm coral accent -->
+    <color name="anchor_primary">#FF0E4F6B</color>
+    <color name="anchor_primary_dark">#FF062E41</color>
+    <color name="anchor_primary_container">#FFCDE8F3</color>
+    <color name="anchor_on_primary_container">#FF062E41</color>
+
+    <color name="anchor_secondary">#FFFF7A59</color>
+    <color name="anchor_secondary_container">#FFFFE1D6</color>
+    <color name="anchor_on_secondary_container">#FF5B1E0E</color>
+
+    <color name="anchor_tertiary">#FF2E8F7F</color>
+    <color name="anchor_tertiary_container">#FFBFE8DF</color>
+    <color name="anchor_on_tertiary_container">#FF0F3A33</color>
+
+    <color name="anchor_surface">#FFF6FAFC</color>
+    <color name="anchor_surface_dim">#FFE7EEF2</color>
+    <color name="anchor_surface_container">#FFEFF5F8</color>
+    <color name="anchor_surface_container_high">#FFE8EFF3</color>
+    <color name="anchor_surface_variant">#FFDDE6EB</color>
+    <color name="anchor_on_surface">#FF0B1F2A</color>
+    <color name="anchor_on_surface_variant">#FF42525C</color>
+    <color name="anchor_outline">#FF93A4AD</color>
+    <color name="anchor_outline_variant">#FFCBD6DC</color>
+
+    <color name="anchor_error">#FFBA1A1A</color>
+    <color name="anchor_on_error">#FFFFFFFF</color>
+    <color name="anchor_error_container">#FFFFDAD6</color>
+    <color name="anchor_on_error_container">#FF410002</color>
+
+    <color name="anchor_success">#FF1F9D6B</color>
+
+    <!-- Dark theme colors -->
+    <color name="anchor_primary_dark_theme">#FF8AD3EE</color>
+    <color name="anchor_on_primary_dark_theme">#FF00344A</color>
+    <color name="anchor_primary_container_dark">#FF0C4A65</color>
+    <color name="anchor_on_primary_container_dark">#FFC6E7F5</color>
+
+    <color name="anchor_secondary_dark_theme">#FFFFB59A</color>
+    <color name="anchor_secondary_container_dark">#FF803322</color>
+    <color name="anchor_on_secondary_container_dark">#FFFFDBCD</color>
+
+    <color name="anchor_tertiary_dark_theme">#FF8FD6C6</color>
+    <color name="anchor_tertiary_container_dark">#FF14504A</color>
+    <color name="anchor_on_tertiary_container_dark">#FFBFE8DF</color>
+
+    <color name="anchor_background_dark">#FF07161E</color>
+    <color name="anchor_surface_dark">#FF0B1F2A</color>
+    <color name="anchor_surface_container_dark">#FF0F2735</color>
+    <color name="anchor_surface_container_high_dark">#FF142E3D</color>
+    <color name="anchor_surface_variant_dark">#FF253540</color>
+    <color name="anchor_on_surface_dark">#FFE1EAEF</color>
+    <color name="anchor_on_surface_variant_dark">#FFBDCBD3</color>
+    <color name="anchor_outline_dark">#FF617079</color>
+    <color name="anchor_outline_variant_dark">#FF2C3C46</color>
+
+    <!-- Gradient accents -->
+    <color name="hero_gradient_start">#FF0E4F6B</color>
+    <color name="hero_gradient_mid">#FF12708F</color>
+    <color name="hero_gradient_end">#FF2E8F7F</color>
+
+    <color name="block_gradient_start">#FF0A1A25</color>
+    <color name="block_gradient_mid">#FF0E4F6B</color>
+    <color name="block_gradient_end">#FF1A1423</color>
 </resources>

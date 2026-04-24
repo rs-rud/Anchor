@@ -6,44 +6,58 @@
     <string name="accessibility_service_description">Anchor monitors which app is in the foreground and blocks distracting apps when you are inside your focus zone.</string>
 
     <!-- Block Activity -->
-    <string name="block_title">Focus Zone Active</string>
-    <string name="block_subtitle">This app is blocked while you\'re in your focus zone. Stay focused!</string>
+    <string name="block_title">Stay anchored</string>
+    <string name="block_subtitle">This app is paused while you\'re in your focus zone. Take a breath and keep going.</string>
     <string name="go_home">Go Home</string>
     <string name="block_icon_desc">Blocked icon</string>
-    <string name="breathing_hint">Breathe in and out with the circle</string>
+    <string name="breathing_overline">Breathe · 10s</string>
+    <string name="breathing_hint">Inhale as it expands. Exhale as it shrinks.</string>
     <string name="breathing_circle_desc">Breathing guide</string>
-    <string name="jailbreak_open_app">Open app anyway</string>
+    <string name="focus_active_overline">Focus zone active</string>
+    <string name="jailbreak_open_app">Open this app anyway</string>
     <string name="jailbreak_launch_failed">Could not open that app from here.</string>
 
     <!-- Bottom Navigation -->
-    <string name="nav_blocked_apps">Blocked Apps</string>
-    <string name="nav_geofence">Geofence</string>
+    <string name="nav_blocked_apps">Blocked</string>
+    <string name="nav_geofence">Focus Zone</string>
 
     <!-- Blocked Apps Fragment -->
-    <string name="blocked_apps_title">Blocked Apps</string>
+    <string name="blocked_apps_overline">Your list</string>
+    <string name="blocked_apps_title">Blocked apps</string>
+    <string name="blocked_apps_hint">Toggle the apps you want paused while you\'re in your focus zone.</string>
+    <string name="blocked_count_label">blocked</string>
+    <string name="blocked_indicator">Blocked in focus zone</string>
     <string name="search_apps_hint">Search apps</string>
     <string name="no_apps_found">No apps found</string>
+    <string name="no_apps_hint">Try a different search term or clear the search to see every installed app.</string>
     <string name="app_icon_desc">App icon</string>
 
     <!-- Geofence Fragment -->
     <string name="geofence_title">Focus Zone</string>
-    <string name="geofence_status">Geofence Status</string>
-    <string name="no_geofence_set">No geofence set</string>
-    <string name="set_geofence_heading">Set Up Focus Zone</string>
+    <string name="hero_title">Your anchor</string>
+    <string name="hero_subtitle">Pick a place. When you\'re here, distractions pause.</string>
+    <string name="hero_idle_label">No zone set</string>
+    <string name="hero_active_label">Focus zone active</string>
+    <string name="geofence_status">Zone status</string>
+    <string name="no_geofence_set">No focus zone yet</string>
+    <string name="set_geofence_heading">Setup</string>
+    <string name="set_geofence_headline">Set your focus zone</string>
     <string name="address_hint">Enter address or location</string>
+    <string name="radius_heading">Radius</string>
+    <string name="radius_default_value">200 m</string>
     <string name="radius_default_label">Radius: 200m</string>
-    <string name="radius_label_format">Radius: %dm</string>
-    <string name="set_geofence">Set Geofence</string>
-    <string name="remove_geofence">Remove Geofence</string>
-    <string name="geofence_active_format">%1$s — %2$dm radius</string>
-    <string name="inside_geofence">You are INSIDE the focus zone — blocking is active</string>
-    <string name="outside_geofence">You are OUTSIDE the focus zone — blocking is inactive</string>
+    <string name="radius_label_format">%dm</string>
+    <string name="set_geofence">Set focus zone</string>
+    <string name="remove_geofence">Remove focus zone</string>
+    <string name="geofence_active_format">%1$s · %2$dm radius</string>
+    <string name="inside_geofence">Inside · blocking active</string>
+    <string name="outside_geofence">Outside · blocking paused</string>
     <string name="address_required">Please enter an address</string>
     <string name="address_not_found">Could not find that address. Please try a more specific location.</string>
-    <string name="geofence_set_success">Geofence set successfully!</string>
-    <string name="geofence_set_failed">Failed to set geofence: %s</string>
-    <string name="geofence_removed">Geofence removed</string>
-    <string name="geofence_remove_failed">Failed to remove geofence: %s</string>
+    <string name="geofence_set_success">Focus zone set!</string>
+    <string name="geofence_set_failed">Failed to set focus zone: %s</string>
+    <string name="geofence_removed">Focus zone removed</string>
+    <string name="geofence_remove_failed">Failed to remove focus zone: %s</string>
     <string name="geocoder_error">Could not connect to geocoding service. Check your internet connection.</string>
 
     <!-- Accessibility Dialog -->
@@ -54,6 +68,6 @@
 
     <!-- Background Location Dialog -->
     <string name="bg_location_dialog_title">Background Location</string>
-    <string name="bg_location_dialog_message">Anchor needs \"Allow all the time\" location access to monitor your geofence even when the app is in the background.\n\nOn the next screen, select \"Allow all the time\".</string>
+    <string name="bg_location_dialog_message">Anchor needs \"Allow all the time\" location access to monitor your focus zone even when the app is in the background.\n\nOn the next screen, select \"Allow all the time\".</string>
     <string name="grant">Grant</string>
 </resources>

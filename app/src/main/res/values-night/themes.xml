@@ -1,7 +1,65 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+
     <style name="Base.Theme.Anchor" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/anchor_secondary</item>
+        <!-- Primary -->
+        <item name="colorPrimary">@color/anchor_primary_dark_theme</item>
+        <item name="colorOnPrimary">@color/anchor_on_primary_dark_theme</item>
+        <item name="colorPrimaryContainer">@color/anchor_primary_container_dark</item>
+        <item name="colorOnPrimaryContainer">@color/anchor_on_primary_container_dark</item>
         <item name="colorPrimaryDark">@color/anchor_primary_dark</item>
-        <item name="colorSecondary">@color/anchor_secondary</item>
+
+        <!-- Secondary / Accent -->
+        <item name="colorSecondary">@color/anchor_secondary_dark_theme</item>
+        <item name="colorOnSecondary">@color/anchor_on_secondary_container_dark</item>
+        <item name="colorSecondaryContainer">@color/anchor_secondary_container_dark</item>
+        <item name="colorOnSecondaryContainer">@color/anchor_on_secondary_container_dark</item>
+
+        <!-- Tertiary -->
+        <item name="colorTertiary">@color/anchor_tertiary_dark_theme</item>
+        <item name="colorOnTertiary">@color/anchor_on_tertiary_container_dark</item>
+        <item name="colorTertiaryContainer">@color/anchor_tertiary_container_dark</item>
+        <item name="colorOnTertiaryContainer">@color/anchor_on_tertiary_container_dark</item>
+
+        <!-- Surfaces -->
+        <item name="android:colorBackground">@color/anchor_background_dark</item>
+        <item name="colorSurface">@color/anchor_surface_dark</item>
+        <item name="colorOnSurface">@color/anchor_on_surface_dark</item>
+        <item name="colorSurfaceVariant">@color/anchor_surface_variant_dark</item>
+        <item name="colorOnSurfaceVariant">@color/anchor_on_surface_variant_dark</item>
+        <item name="colorSurfaceContainer">@color/anchor_surface_container_dark</item>
+        <item name="colorSurfaceContainerHigh">@color/anchor_surface_container_high_dark</item>
+        <item name="colorOutline">@color/anchor_outline_dark</item>
+        <item name="colorOutlineVariant">@color/anchor_outline_variant_dark</item>
+
+        <!-- Error -->
+        <item name="colorError">#FFFFB4AB</item>
+        <item name="colorOnError">#FF690005</item>
+        <item name="colorErrorContainer">#FF93000A</item>
+        <item name="colorOnErrorContainer">#FFFFDAD6</item>
+
+        <!-- System bars -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+
+        <!-- Shapes -->
+        <item name="shapeAppearanceCornerSmall">@style/ShapeAppearance.Anchor.Small</item>
+        <item name="shapeAppearanceCornerMedium">@style/ShapeAppearance.Anchor.Medium</item>
+        <item name="shapeAppearanceCornerLarge">@style/ShapeAppearance.Anchor.Large</item>
+        <item name="shapeAppearanceCornerExtraLarge">@style/ShapeAppearance.Anchor.ExtraLarge</item>
+
+        <!-- Text appearance -->
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.Anchor.DisplayLarge</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Anchor.HeadlineLarge</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Anchor.HeadlineSmall</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.Anchor.TitleLarge</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.Anchor.LabelLarge</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.Anchor.LabelSmall</item>
+
+        <!-- Default button style -->
+        <item name="materialButtonStyle">@style/Widget.Anchor.Button</item>
+        <item name="bottomNavigationStyle">@style/Widget.Anchor.BottomNav</item>
     </style>
+
 </resources>

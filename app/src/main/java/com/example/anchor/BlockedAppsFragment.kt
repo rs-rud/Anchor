@@ -21,6 +21,7 @@ class BlockedAppsFragment : Fragment() {
     private lateinit var adapter: AppListAdapter
     private val blockedApps = mutableSetOf<String>()
     private var allApps = listOf<AppInfo>()
+    private var tvBlockedCount: TextView? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -31,15 +32,18 @@ class BlockedAppsFragment : Fragment() {
 
         val rv = view.findViewById<RecyclerView>(R.id.rvApps)
         val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
-        val tvEmpty = view.findViewById<TextView>(R.id.tvEmpty)
+        val emptyState = view.findViewById<View>(R.id.emptyState)
         val etSearch = view.findViewById<TextInputEditText>(R.id.etSearch)
+        tvBlockedCount = view.findViewById(R.id.tvBlockedCount)
 
         val prefs = requireContext().getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
         blockedApps.addAll(prefs.getStringSet(AnchorPrefs.KEY_BLOCKED_APPS, emptySet()) ?: emptySet())
+        updateBlockedCount()
 
         adapter = AppListAdapter(blockedApps) { packageName, isBlocked ->
             if (isBlocked) blockedApps.add(packageName) else blockedApps.remove(packageName)
             prefs.edit().putStringSet(AnchorPrefs.KEY_BLOCKED_APPS, blockedApps.toSet()).apply()
+            updateBlockedCount()
         }
 
         rv.layoutManager = LinearLayoutManager(requireContext())
@@ -53,9 +57,9 @@ class BlockedAppsFragment : Fragment() {
             rv.post {
                 progressBar.visibility = View.GONE
                 if (apps.isEmpty()) {
-                    tvEmpty.visibility = View.VISIBLE
+                    emptyState.visibility = View.VISIBLE
                 } else {
-                    tvEmpty.visibility = View.GONE
+                    emptyState.visibility = View.GONE
                     adapter.submitList(apps)
                 }
             }
@@ -65,19 +69,23 @@ class BlockedAppsFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                filterApps(s?.toString().orEmpty(), tvEmpty)
+                filterApps(s?.toString().orEmpty(), emptyState)
             }
         })
     }
 
-    private fun filterApps(query: String, tvEmpty: TextView) {
+    private fun updateBlockedCount() {
+        tvBlockedCount?.text = blockedApps.size.toString()
+    }
+
+    private fun filterApps(query: String, emptyState: View) {
         val filtered = if (query.isBlank()) {
             allApps
         } else {
             val lower = query.lowercase(Locale.getDefault())
             allApps.filter { it.name.lowercase(Locale.getDefault()).contains(lower) }
         }
-        tvEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+        emptyState.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
         adapter.submitList(filtered)
     }
 

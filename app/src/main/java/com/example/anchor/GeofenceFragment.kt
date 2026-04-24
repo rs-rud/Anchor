@@ -37,12 +37,16 @@ class GeofenceFragment : Fragment() {
         val btnSet = view.findViewById<MaterialButton>(R.id.btnSetGeofence)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveGeofence)
         val tvStatusValue = view.findViewById<TextView>(R.id.tvStatusValue)
+        val insideOutsideContainer = view.findViewById<View>(R.id.insideOutsideContainer)
         val tvInsideOutside = view.findViewById<TextView>(R.id.tvInsideOutside)
+        val tvInsideOutsideDot = view.findViewById<View>(R.id.tvInsideOutsideDot)
+        val heroStatusDot = view.findViewById<View>(R.id.heroStatusDot)
+        val heroStatusLabel = view.findViewById<TextView>(R.id.heroStatusLabel)
 
         sliderRadius.addOnChangeListener { _, value, _ ->
-            tvRadiusLabel.text = getString(R.string.radius_label_format, value.toInt())
+            tvRadiusLabel.text = formatRadiusValue(value.toInt())
         }
-        tvRadiusLabel.text = getString(R.string.radius_label_format, sliderRadius.value.toInt())
+        tvRadiusLabel.text = formatRadiusValue(sliderRadius.value.toInt())
 
         btnSet.setOnClickListener {
             val address = etAddress.text?.toString()?.trim()
@@ -52,7 +56,17 @@ class GeofenceFragment : Fragment() {
             }
 
             val radiusMeters = sliderRadius.value
-            resolveAndSetGeofence(address, radiusMeters, tvStatusValue, tvInsideOutside, btnRemove)
+            resolveAndSetGeofence(
+                address,
+                radiusMeters,
+                tvStatusValue,
+                insideOutsideContainer,
+                tvInsideOutside,
+                tvInsideOutsideDot,
+                btnRemove,
+                heroStatusDot,
+                heroStatusLabel
+            )
         }
 
         btnRemove.setOnClickListener {
@@ -60,8 +74,10 @@ class GeofenceFragment : Fragment() {
                 onSuccess = {
                     requireActivity().runOnUiThread {
                         tvStatusValue.text = getString(R.string.no_geofence_set)
-                        tvInsideOutside.visibility = View.GONE
+                        insideOutsideContainer.visibility = View.GONE
                         btnRemove.visibility = View.GONE
+                        heroStatusDot.setBackgroundResource(R.drawable.bg_status_dot_idle)
+                        heroStatusLabel.setText(R.string.hero_idle_label)
                         Toast.makeText(requireContext(), R.string.geofence_removed, Toast.LENGTH_SHORT).show()
                     }
                 },
@@ -73,18 +89,49 @@ class GeofenceFragment : Fragment() {
             )
         }
 
-        refreshStatus(tvStatusValue, tvInsideOutside, btnRemove)
+        refreshStatus(
+            tvStatusValue,
+            insideOutsideContainer,
+            tvInsideOutside,
+            tvInsideOutsideDot,
+            btnRemove,
+            heroStatusDot,
+            heroStatusLabel
+        )
     }
 
     override fun onResume() {
         super.onResume()
-        val tvStatusValue = view?.findViewById<TextView>(R.id.tvStatusValue) ?: return
-        val tvInsideOutside = view?.findViewById<TextView>(R.id.tvInsideOutside) ?: return
-        val btnRemove = view?.findViewById<MaterialButton>(R.id.btnRemoveGeofence) ?: return
-        refreshStatus(tvStatusValue, tvInsideOutside, btnRemove)
+        val root = view ?: return
+        val tvStatusValue = root.findViewById<TextView>(R.id.tvStatusValue) ?: return
+        val insideOutsideContainer = root.findViewById<View>(R.id.insideOutsideContainer) ?: return
+        val tvInsideOutside = root.findViewById<TextView>(R.id.tvInsideOutside) ?: return
+        val tvInsideOutsideDot = root.findViewById<View>(R.id.tvInsideOutsideDot) ?: return
+        val btnRemove = root.findViewById<MaterialButton>(R.id.btnRemoveGeofence) ?: return
+        val heroStatusDot = root.findViewById<View>(R.id.heroStatusDot) ?: return
+        val heroStatusLabel = root.findViewById<TextView>(R.id.heroStatusLabel) ?: return
+        refreshStatus(
+            tvStatusValue,
+            insideOutsideContainer,
+            tvInsideOutside,
+            tvInsideOutsideDot,
+            btnRemove,
+            heroStatusDot,
+            heroStatusLabel
+        )
     }
 
-    private fun refreshStatus(tvStatusValue: TextView, tvInsideOutside: TextView, btnRemove: MaterialButton) {
+    private fun formatRadiusValue(radius: Int): String = "${radius} m"
+
+    private fun refreshStatus(
+        tvStatusValue: TextView,
+        insideOutsideContainer: View,
+        tvInsideOutside: TextView,
+        tvInsideOutsideDot: View,
+        btnRemove: MaterialButton,
+        heroStatusDot: View,
+        heroStatusLabel: TextView
+    ) {
         val active = prefs.getBoolean(AnchorPrefs.KEY_GEOFENCE_ACTIVE, false)
         if (active) {
             val address = prefs.getString(AnchorPrefs.KEY_GEOFENCE_ADDRESS, "") ?: ""
@@ -92,17 +139,24 @@ class GeofenceFragment : Fragment() {
             tvStatusValue.text = getString(R.string.geofence_active_format, address, radius)
             btnRemove.visibility = View.VISIBLE
 
+            heroStatusDot.setBackgroundResource(R.drawable.bg_status_dot_active)
+            heroStatusLabel.setText(R.string.hero_active_label)
+
             val inside = prefs.getBoolean(AnchorPrefs.KEY_IS_INSIDE_GEOFENCE, false)
-            tvInsideOutside.visibility = View.VISIBLE
-            tvInsideOutside.text = if (inside) {
-                getString(R.string.inside_geofence)
+            insideOutsideContainer.visibility = View.VISIBLE
+            if (inside) {
+                tvInsideOutside.setText(R.string.inside_geofence)
+                tvInsideOutsideDot.setBackgroundResource(R.drawable.bg_status_dot_active)
             } else {
-                getString(R.string.outside_geofence)
+                tvInsideOutside.setText(R.string.outside_geofence)
+                tvInsideOutsideDot.setBackgroundResource(R.drawable.bg_status_dot_idle)
             }
         } else {
             tvStatusValue.text = getString(R.string.no_geofence_set)
-            tvInsideOutside.visibility = View.GONE
+            insideOutsideContainer.visibility = View.GONE
             btnRemove.visibility = View.GONE
+            heroStatusDot.setBackgroundResource(R.drawable.bg_status_dot_idle)
+            heroStatusLabel.setText(R.string.hero_idle_label)
         }
     }
 
@@ -110,8 +164,12 @@ class GeofenceFragment : Fragment() {
         address: String,
         radiusMeters: Float,
         tvStatusValue: TextView,
+        insideOutsideContainer: View,
         tvInsideOutside: TextView,
-        btnRemove: MaterialButton
+        tvInsideOutsideDot: View,
+        btnRemove: MaterialButton,
+        heroStatusDot: View,
+        heroStatusLabel: TextView
     ) {
         Thread {
             try {
@@ -139,7 +197,15 @@ class GeofenceFragment : Fragment() {
                     onSuccess = {
                         requireActivity().runOnUiThread {
                             Toast.makeText(requireContext(), R.string.geofence_set_success, Toast.LENGTH_SHORT).show()
-                            refreshStatus(tvStatusValue, tvInsideOutside, btnRemove)
+                            refreshStatus(
+                                tvStatusValue,
+                                insideOutsideContainer,
+                                tvInsideOutside,
+                                tvInsideOutsideDot,
+                                btnRemove,
+                                heroStatusDot,
+                                heroStatusLabel
+                            )
                         }
                     },
                     onFailure = { e ->

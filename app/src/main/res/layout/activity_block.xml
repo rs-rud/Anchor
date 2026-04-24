@@ -4,8 +4,8 @@
     android:id="@+id/blockRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
-    android:padding="32dp">
+    android:background="@drawable/bg_block_gradient"
+    android:padding="28dp">
 
     <!-- Phase 1: breathing + countdown -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -17,25 +17,56 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <LinearLayout
+            android:id="@+id/breathingLabelRow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_status_pill"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="8dp"
+            app:layout_constraintBottom_toTopOf="@id/breathingCircle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed">
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/bg_status_dot_active" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/breathing_overline"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="#FFFFFFFF" />
+
+        </LinearLayout>
+
         <View
             android:id="@+id/breathingCircle"
-            android:layout_width="160dp"
-            android:layout_height="160dp"
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:layout_marginTop="32dp"
+            android:alpha="0.78"
             android:background="@drawable/breathing_circle"
-            android:alpha="0.55"
             android:contentDescription="@string/breathing_circle_desc"
             app:layout_constraintBottom_toTopOf="@id/tvBreathingCountdown"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed" />
+            app:layout_constraintTop_toBottomOf="@id/breathingLabelRow" />
 
         <TextView
             android:id="@+id/tvBreathingCountdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:textAppearance="?attr/textAppearanceDisplayMedium"
+            android:layout_marginTop="36dp"
+            android:textAppearance="?attr/textAppearanceDisplayLarge"
+            android:textColor="#FFFFFFFF"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@id/tvBreathingHint"
             app:layout_constraintEnd_toEndOf="parent"
@@ -46,10 +77,11 @@
             android:id="@+id/tvBreathingHint"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:gravity="center"
             android:text="@string/breathing_hint"
             android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="#CCFFFFFF"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -68,26 +100,66 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/iconBlock"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:contentDescription="@string/block_icon_desc"
-            android:src="@drawable/ic_block"
-            app:layout_constraintBottom_toTopOf="@id/tvTitle"
+        <LinearLayout
+            android:id="@+id/focusOverlineRow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_status_pill"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="8dp"
+            app:layout_constraintBottom_toTopOf="@id/iconBlock"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed"
-            app:tint="?attr/colorError" />
+            app:layout_constraintVertical_chainStyle="packed">
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/bg_status_dot_active" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/focus_active_overline"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="#FFFFFFFF" />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/iconBlock"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:layout_marginTop="36dp"
+            android:background="@drawable/bg_block_icon"
+            app:layout_constraintBottom_toTopOf="@id/tvTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/focusOverlineRow">
+
+            <ImageView
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/block_icon_desc"
+                android:src="@drawable/ic_anchor"
+                app:tint="#FFFFFFFF" />
+
+        </FrameLayout>
 
         <TextView
             android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="32dp"
+            android:gravity="center"
             android:text="@string/block_title"
             android:textAppearance="?attr/textAppearanceHeadlineLarge"
+            android:textColor="#FFFFFFFF"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@id/tvSubtitle"
             app:layout_constraintEnd_toEndOf="parent"
@@ -99,9 +171,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            android:layout_marginHorizontal="16dp"
             android:gravity="center"
             android:text="@string/block_subtitle"
             android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="#CCFFFFFF"
             app:layout_constraintBottom_toTopOf="@id/btnGoHome"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -109,21 +183,27 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnGoHome"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginHorizontal="24dp"
+            android:backgroundTint="#FFFFFFFF"
             android:text="@string/go_home"
+            android:textColor="@color/anchor_primary_dark"
             app:layout_constraintBottom_toTopOf="@id/btnJailbreak"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvSubtitle" />
+            app:layout_constraintTop_toBottomOf="@id/tvSubtitle"
+            app:layout_constraintWidth_max="320dp"
+            app:layout_constrainedWidth="true" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnJailbreak"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="8dp"
             android:text="@string/jailbreak_open_app"
+            android:textColor="#CCFFFFFF"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
