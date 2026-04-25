@@ -1,16 +1,16 @@
 package com.example.anchor
 
+import android.Manifest
 import android.content.Context
 import android.location.Location
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.google.android.gms.location.CancellationTokenSource
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.tasks.await
 
 /**
  * Periodically refreshes [AnchorPrefs.KEY_IS_INSIDE_GEOFENCE] using a fused-location read
@@ -42,6 +42,9 @@ class GeofenceLocationRefreshWorker(
         } catch (e: SecurityException) {
             Log.e(TAG, "Location permission missing in worker", e)
             return Result.success()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to fetch location", e)
+            return Result.success()
         }
 
         if (location == null) {
@@ -60,24 +63,13 @@ class GeofenceLocationRefreshWorker(
         return Result.success()
     }
 
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private suspend fun fetchLocationWithFallback(
         fused: FusedLocationProviderClient
     ): Location? {
-        val current = suspendCoroutine { cont ->
-            val cts = CancellationTokenSource()
-            fused.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, cts.token)
-                .addOnCompleteListener { task ->
-                    val loc = if (task.isSuccessful) task.result else null
-                    cont.resume(loc)
-                }
-        }
-        if (current != null) return current
-
-        return suspendCoroutine { cont ->
-            fused.lastLocation.addOnCompleteListener { task ->
-                cont.resume(if (task.isSuccessful) task.result else null)
-            }
-        }
+        // .await() magically suspends until the Play Services Task finishes
+        return fused.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null).await()
+            ?: fused.lastLocation.await()
     }
 
     companion object {
