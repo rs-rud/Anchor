@@ -70,4 +70,7 @@
     <string name="bg_location_dialog_title">Background Location</string>
     <string name="bg_location_dialog_message">Anchor needs \"Allow all the time\" location access to monitor your focus zone even when the app is in the background.\n\nOn the next screen, select \"Allow all the time\".</string>
     <string name="grant">Grant</string>
+
+    <string name="loading">Loading...</string>
+    <string name="error_loading">Error loading packages</string>
 </resources>

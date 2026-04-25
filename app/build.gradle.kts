@@ -24,6 +24,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "SUPABASE_URL", "\"${localProperties.getProperty("SUPABASE_URL")}\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${localProperties.getProperty("SUPABASE_ANON_KEY")}\"")
+        buildConfigField("String", "REVENUECAT_KEY", "\"${localProperties.getProperty("REVENUECAT_KEY")}\"")
     }
 
     buildFeatures {
@@ -58,6 +59,7 @@ dependencies {
     implementation("io.github.jan-tennert.supabase:postgrest-kt:2.0.0")
     implementation("io.ktor:ktor-client-android:2.3.8")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
+    implementation("com.revenuecat.purchases:purchases:8.2.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
