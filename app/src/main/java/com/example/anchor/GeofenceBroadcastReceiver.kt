@@ -15,7 +15,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         val geofencingEvent = GeofencingEvent.fromIntent(intent) ?: return
 
         if (geofencingEvent.hasError()) {
-            Log.e(TAG, "Geofence event error code: ${geofencingEvent.errorCode}")
+            TelemetryTracker.logEvent("geofence_error", mapOf("error_code" to geofencingEvent.errorCode.toString()))
             return
         }
 
@@ -23,16 +23,33 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         val prefs = context.getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
 
         when (transition) {
-            Geofence.GEOFENCE_TRANSITION_ENTER, Geofence.GEOFENCE_TRANSITION_DWELL -> {
+            Geofence.GEOFENCE_TRANSITION_ENTER -> {
                 Log.d(TAG, "Entered geofence — blocking activated")
                 prefs.edit().putBoolean(AnchorPrefs.KEY_IS_INSIDE_GEOFENCE, true).apply()
+
+                // ---> TRACKING INJECTED HERE
+                TelemetryTracker.logEvent("geofence_triggered", mapOf("transition" to "ENTER"))
+            }
+            Geofence.GEOFENCE_TRANSITION_DWELL -> {
+                // Dwell means they entered and stayed for a specified duration
+                Log.d(TAG, "Dwelling in geofence — blocking activated")
+                prefs.edit().putBoolean(AnchorPrefs.KEY_IS_INSIDE_GEOFENCE, true).apply()
+
+                // ---> TRACKING INJECTED HERE
+                TelemetryTracker.logEvent("geofence_triggered", mapOf("transition" to "DWELL"))
             }
             Geofence.GEOFENCE_TRANSITION_EXIT -> {
                 Log.d(TAG, "Exited geofence — blocking deactivated")
                 prefs.edit().putBoolean(AnchorPrefs.KEY_IS_INSIDE_GEOFENCE, false).apply()
+
+                // ---> TRACKING INJECTED HERE
+                TelemetryTracker.logEvent("geofence_triggered", mapOf("transition" to "EXIT"))
             }
             else -> {
                 Log.w(TAG, "Unknown geofence transition type: $transition")
+
+                // ---> TRACKING INJECTED HERE
+                TelemetryTracker.logEvent("geofence_triggered", mapOf("transition" to "UNKNOWN"))
             }
         }
     }

@@ -24,6 +24,10 @@ class AppBlockerService : AccessibilityService() {
         super.onServiceConnected()
         prefs = getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
         Log.d(TAG, "AppBlockerService connected")
+
+        // ---> TRACKING INJECTED HERE
+        // Logs when the system successfully binds to your accessibility service
+        TelemetryTracker.logEvent("accessibility_service_connected")
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -78,6 +82,19 @@ class AppBlockerService : AccessibilityService() {
         }
 
         Log.d(TAG, "Blocked app detected: $packageName — launching BlockActivity")
+
+        // ---> TRACKING INJECTED HERE
+        // Track the actual block event.
+        // Note: For production privacy, you may want to map 'packageName' to a generic category string
+        // before sending it to Supabase (e.g., "social", "game") rather than the exact package.
+        TelemetryTracker.logEvent(
+            eventType = "app_blocked",
+            metadata = mapOf(
+                "package" to packageName,
+                "geofence_active" to geofenceActive.toString(),
+                "is_inside_geofence" to isInsideGeofence.toString()
+            )
+        )
         launchBlockScreen(packageName)
     }
 
@@ -91,6 +108,10 @@ class AppBlockerService : AccessibilityService() {
 
     override fun onInterrupt() {
         Log.d(TAG, "Service interrupted")
+
+        // ---> TRACKING INJECTED HERE
+        // Logs when the service is killed or interrupted by the OS or user
+        TelemetryTracker.logEvent("accessibility_service_interrupted")
     }
 
     companion object {

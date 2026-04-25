@@ -196,12 +196,22 @@ class BlockActivity : AppCompatActivity() {
             goHome()
             return
         }
+
+        // Track the specific "Proceed Anyway" / jailbreak action
+        TelemetryTracker.logEvent(
+            eventType = "block_bypassed",
+            metadata = mapOf(
+                "package" to pkg,
+                "reason" to "user_override"
+            )
+        )
+
         val launch = packageManager.getLaunchIntentForPackage(pkg)
         if (launch != null) {
             val until = System.currentTimeMillis() + AnchorPrefs.JAILBREAK_DURATION_MS
             val prefs = getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
             val key = AnchorPrefs.jailbreakUntilKey(pkg)
-            // #region agent log
+
             AnchorDebugLog.log(
                 hypothesisId = "H2",
                 location = "BlockActivity.kt:openBlockedAppAnyway",
@@ -212,16 +222,16 @@ class BlockActivity : AppCompatActivity() {
                     "usedCommit" to true
                 )
             )
-            // #endregion
+
             val committed = prefs.edit().putLong(key, until).commit()
-            // #region agent log
+
             AnchorDebugLog.log(
                 hypothesisId = "H2",
                 location = "BlockActivity.kt:openBlockedAppAnyway",
                 message = "after_jailbreak_commit",
                 data = mapOf("pkg" to pkg, "committed" to committed, "until" to until)
             )
-            // #endregion
+
             launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(launch)
             finish()

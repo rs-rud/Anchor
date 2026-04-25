@@ -25,19 +25,35 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val fineGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
-        if (fineGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            requestBackgroundLocation()
+        if (fineGranted) {
+            // ---> TRACKING INJECTED HERE
+            TelemetryTracker.logEvent("permission_granted", mapOf("type" to "fine_location"))
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                requestBackgroundLocation()
+            }
+        } else {
+            TelemetryTracker.logEvent("permission_denied", mapOf("type" to "fine_location"))
         }
     }
 
     private val backgroundLocationLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { _ -> }
+    ) { granted ->
+        if (granted) {
+            // ---> TRACKING INJECTED HERE
+            TelemetryTracker.logEvent("permission_granted", mapOf("type" to "background_location"))
+        } else {
+            TelemetryTracker.logEvent("permission_denied", mapOf("type" to "background_location"))
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
+        TelemetryTracker.logEvent("app_opened")
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -68,7 +84,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!isAccessibilityServiceEnabled()) {
+        TelemetryTracker.registerDeviceIfNeeded(this);
+        val isEnabled = isAccessibilityServiceEnabled()
+
+        // ---> TRACKING INJECTED HERE
+        TelemetryTracker.logEvent("accessibility_status_check", mapOf("is_enabled" to isEnabled.toString()))
+
+        if (!isEnabled) {
             showAccessibilityDialog()
         }
         requestLocationPermissions()
