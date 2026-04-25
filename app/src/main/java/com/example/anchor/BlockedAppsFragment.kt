@@ -42,7 +42,11 @@ class BlockedAppsFragment : Fragment() {
 
         adapter = AppListAdapter(blockedApps) { packageName, isBlocked ->
             if (isBlocked) blockedApps.add(packageName) else blockedApps.remove(packageName)
-            prefs.edit().putStringSet(AnchorPrefs.KEY_BLOCKED_APPS, blockedApps.toSet()).apply()
+            val editor = prefs.edit().putStringSet(AnchorPrefs.KEY_BLOCKED_APPS, blockedApps.toSet())
+            if (isBlocked && prefs.getString(AnchorPrefs.KEY_GOOD_APP_PACKAGE, null) == packageName) {
+                editor.remove(AnchorPrefs.KEY_GOOD_APP_PACKAGE)
+            }
+            editor.apply()
             updateBlockedCount()
         }
 

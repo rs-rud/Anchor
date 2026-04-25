@@ -212,4 +212,111 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- Alternative ritual: redirect to the chosen good app -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/redirectPhase"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/redirectOverlineRow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_status_pill"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="8dp"
+            app:layout_constraintBottom_toTopOf="@id/redirectIconContainer"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed">
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/bg_status_dot_active" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/redirect_overline"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="#FFFFFFFF" />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/redirectIconContainer"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:layout_marginTop="36dp"
+            android:background="@drawable/bg_block_icon"
+            app:layout_constraintBottom_toTopOf="@id/tvRedirectTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/redirectOverlineRow">
+
+            <ImageView
+                android:id="@+id/ivRedirectGoodAppIcon"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/app_icon_desc" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvRedirectTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:gravity="center"
+            android:text="@string/redirect_title"
+            android:textAppearance="?attr/textAppearanceHeadlineLarge"
+            android:textColor="#FFFFFFFF"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/tvRedirectGoodAppName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/redirectIconContainer" />
+
+        <TextView
+            android:id="@+id/tvRedirectGoodAppName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textAppearance="?attr/textAppearanceTitleLarge"
+            android:textColor="#FFFFFFFF"
+            app:layout_constraintBottom_toTopOf="@id/tvRedirectSubtitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvRedirectTitle" />
+
+        <TextView
+            android:id="@+id/tvRedirectSubtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="#CCFFFFFF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvRedirectGoodAppName" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

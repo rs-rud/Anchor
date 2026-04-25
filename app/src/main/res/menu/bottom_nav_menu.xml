@@ -11,4 +11,9 @@
         android:icon="@drawable/ic_location"
         android:title="@string/nav_geofence" />
 
+    <item
+        android:id="@+id/nav_ritual"
+        android:icon="@drawable/ic_anchor"
+        android:title="@string/nav_ritual" />
+
 </menu>

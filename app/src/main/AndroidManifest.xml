@@ -39,6 +39,11 @@
             android:exported="false"
             android:theme="@style/Theme.Anchor" />
 
+        <activity
+            android:name=".GoodAppPickerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Anchor" />
+
         <service
             android:name=".AppBlockerService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"

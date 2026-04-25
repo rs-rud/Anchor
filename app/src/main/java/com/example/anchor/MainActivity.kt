@@ -97,6 +97,10 @@ class MainActivity : AppCompatActivity() {
                     loadFragment(GeofenceFragment())
                     true
                 }
+                R.id.nav_ritual -> {
+                    loadFragment(RitualFragment())
+                    true
+                }
                 else -> false
             }
         }

@@ -9,10 +9,15 @@ object AnchorPrefs {
     fun jailbreakUntilKey(packageName: String) = "jailbreak_until_$packageName"
 
     const val KEY_BLOCKED_APPS = "blocked_apps"
+    const val KEY_RITUAL_TYPE = "ritual_type"
+    const val KEY_GOOD_APP_PACKAGE = "good_app_package"
     const val KEY_IS_INSIDE_GEOFENCE = "is_inside_geofence"
     const val KEY_GEOFENCE_LAT = "geofence_lat"
     const val KEY_GEOFENCE_LNG = "geofence_lng"
     const val KEY_GEOFENCE_RADIUS = "geofence_radius"
     const val KEY_GEOFENCE_ADDRESS = "geofence_address"
     const val KEY_GEOFENCE_ACTIVE = "geofence_active"
+
+    const val RITUAL_BREATHING = "breathing"
+    const val RITUAL_GOOD_APP = "good_app"
 }

@@ -16,10 +16,14 @@
     <string name="focus_active_overline">Focus zone active</string>
     <string name="jailbreak_open_app">Open this app anyway</string>
     <string name="jailbreak_launch_failed">Could not open that app from here.</string>
+    <string name="redirect_overline">Switching to your anchor app</string>
+    <string name="redirect_title">Choose the better path</string>
+    <string name="redirect_subtitle">Opening %1$s instead.</string>
 
     <!-- Bottom Navigation -->
     <string name="nav_blocked_apps">Blocked</string>
     <string name="nav_geofence">Focus Zone</string>
+    <string name="nav_ritual">Ritual</string>
 
     <!-- Blocked Apps Fragment -->
     <string name="blocked_apps_overline">Your list</string>
@@ -31,6 +35,22 @@
     <string name="no_apps_found">No apps found</string>
     <string name="no_apps_hint">Try a different search term or clear the search to see every installed app.</string>
     <string name="app_icon_desc">App icon</string>
+
+    <!-- Ritual Fragment -->
+    <string name="ritual_overline">Your reset</string>
+    <string name="ritual_title">Ritual</string>
+    <string name="ritual_subtitle">Choose what Anchor does when a blocked app opens in your focus zone.</string>
+    <string name="ritual_choice_heading">When I open a blocked app</string>
+    <string name="ritual_choice_breathe">Breathe (10s)</string>
+    <string name="ritual_choice_good_app">Open good app</string>
+    <string name="good_app_heading">Good app</string>
+    <string name="good_app_none_picked">Pick a good app to redirect to.</string>
+    <string name="good_app_change">Change app</string>
+    <string name="good_app_picker_overline">Positive redirect</string>
+    <string name="good_app_picker_title">Choose a good app</string>
+    <string name="good_app_picker_subtitle">Anchor will open this app instead of the blocked app.</string>
+    <string name="no_good_apps_found">No good apps found</string>
+    <string name="no_good_apps_hint">Blocked apps are hidden here. Unblock an app first if you want to choose it.</string>
 
     <!-- Geofence Fragment -->
     <string name="geofence_title">Focus Zone</string>
