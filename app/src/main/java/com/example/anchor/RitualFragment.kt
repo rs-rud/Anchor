@@ -20,6 +20,7 @@ class RitualFragment : Fragment() {
     private lateinit var emptyGoodAppState: TextView
     private lateinit var selectedGoodAppIcon: ImageView
     private lateinit var selectedGoodAppName: TextView
+    private lateinit var changeButton: MaterialButton
     private var suppressToggleEvents = false
 
     override fun onCreateView(
@@ -37,8 +38,8 @@ class RitualFragment : Fragment() {
         emptyGoodAppState = view.findViewById(R.id.tvGoodAppEmpty)
         selectedGoodAppIcon = view.findViewById(R.id.ivSelectedGoodAppIcon)
         selectedGoodAppName = view.findViewById(R.id.tvSelectedGoodAppName)
+        changeButton = view.findViewById(R.id.btnChangeGoodApp)
 
-        val changeButton = view.findViewById<MaterialButton>(R.id.btnChangeGoodApp)
         changeButton.setOnClickListener {
             startActivity(Intent(requireContext(), GoodAppPickerActivity::class.java))
         }
@@ -63,10 +64,31 @@ class RitualFragment : Fragment() {
         }
     }
 
+    // We do the Paywall check in onResume so that if they buy it and close the paywall,
+    // the fragment instantly refreshes and unlocks!
     override fun onResume() {
         super.onResume()
 
         val prefs = requireContext().getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
+        val isPro = prefs.getBoolean("is_pro_unlocked", false)
+
+        if (!isPro) {
+            // 1. Hide everything so they can't click anything behind the paywall
+            toggleGroup.visibility = View.GONE
+            goodAppCard.visibility = View.GONE
+
+            // 2. Launch the Paywall instantly
+            startActivity(Intent(requireContext(), PaywallActivity::class.java))
+
+            // 3. Log that the ritual paywall was hit
+            TelemetryTracker.logEvent("paywall_viewed", mapOf("source" to "ritual_tab"))
+            return // Stop executing the rest of the function!
+        }
+
+        // --- THEY ARE PRO: SHOW THE UI ---
+        toggleGroup.visibility = View.VISIBLE
+        // Note: goodAppCard visibility is handled by updateGoodAppCard below
+
         val ritualType = prefs.getString(AnchorPrefs.KEY_RITUAL_TYPE, AnchorPrefs.RITUAL_BREATHING)
             ?: AnchorPrefs.RITUAL_BREATHING
         val checkedId = if (ritualType == AnchorPrefs.RITUAL_GOOD_APP) {
