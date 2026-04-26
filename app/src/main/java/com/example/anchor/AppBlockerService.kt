@@ -6,6 +6,9 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class AppBlockerService : AccessibilityService() {
 
@@ -36,6 +39,21 @@ class AppBlockerService : AccessibilityService() {
 
         val packageName = event.packageName?.toString() ?: return
 
+        // #region agent log
+        AnchorDebugLog.log(
+            hypothesisId = "H1",
+            location = "AppBlockerService.kt:onAccessibilityEvent:entry",
+            message = "window_state_changed",
+            data = mapOf(
+                "pkg" to packageName,
+                "className" to (event.className?.toString() ?: "null"),
+                "eventTime" to event.eventTime,
+                "isOwnPkg" to (packageName == applicationContext.packageName),
+                "isIgnored" to ignoredPackages.contains(packageName)
+            )
+        )
+        // #endregion
+
         if (packageName == applicationContext.packageName) return
         if (ignoredPackages.contains(packageName)) return
 
@@ -43,6 +61,19 @@ class AppBlockerService : AccessibilityService() {
         val isInsideGeofence = prefs.getBoolean(AnchorPrefs.KEY_IS_INSIDE_GEOFENCE, false)
 
         Log.d(TAG, "Window changed: pkg=$packageName, fenceActive=$geofenceActive, inside=$isInsideGeofence")
+
+        // #region agent log
+        AnchorDebugLog.log(
+            hypothesisId = "H6",
+            location = "AppBlockerService.kt:onAccessibilityEvent:postFenceCheck",
+            message = "geofence_state_at_event",
+            data = mapOf(
+                "pkg" to packageName,
+                "geofenceActive" to geofenceActive,
+                "isInsideGeofence" to isInsideGeofence
+            )
+        )
+        // #endregion
 
         if (!geofenceActive || !isInsideGeofence) return
 
@@ -95,10 +126,29 @@ class AppBlockerService : AccessibilityService() {
                 "is_inside_geofence" to isInsideGeofence.toString()
             )
         )
+        incrementAttemptCounter(packageName)
         launchBlockScreen(packageName)
     }
 
+    private fun incrementAttemptCounter(packageName: String) {
+        val today = DAY_BUCKET_FORMAT.format(Date())
+        val key = AnchorPrefs.attemptsKey(packageName, today)
+        val next = prefs.getInt(key, 0) + 1
+        prefs.edit().putInt(key, next).apply()
+    }
+
     private fun launchBlockScreen(blockedPackage: String) {
+        // #region agent log
+        AnchorDebugLog.log(
+            hypothesisId = "H1",
+            location = "AppBlockerService.kt:launchBlockScreen",
+            message = "launching_block_activity",
+            data = mapOf(
+                "pkg" to blockedPackage,
+                "ts" to System.currentTimeMillis()
+            )
+        )
+        // #endregion
         val intent = Intent(this, BlockActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra(BlockActivity.EXTRA_BLOCKED_PACKAGE, blockedPackage)
@@ -116,5 +166,6 @@ class AppBlockerService : AccessibilityService() {
 
     companion object {
         private const val TAG = "AppBlockerService"
+        private val DAY_BUCKET_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     }
 }

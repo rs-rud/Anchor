@@ -9,8 +9,8 @@ import java.net.URL
  * Debug-mode NDJSON: posts to ingest (emulator: 10.0.2.2 = host) and mirrors to Logcat.
  */
 object AnchorDebugLog {
-    private const val SESSION = "d4c469"
-    private const val TAG = "d4c469"
+    private const val SESSION = "4ca874"
+    private const val TAG = "4ca874"
     private const val ENDPOINT =
         "http://10.0.2.2:7897/ingest/39123c9c-e688-4fbe-ac10-1e9295e81d33"
 

@@ -7,14 +7,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.RadioButton
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.card.MaterialCardView
 
 class RitualFragment : Fragment() {
 
-    private lateinit var toggleGroup: MaterialButtonToggleGroup
+    private lateinit var optionsContainer: View
+    private lateinit var cardBreathe: MaterialCardView
+    private lateinit var cardGoodApp: MaterialCardView
+    private lateinit var cardShame: MaterialCardView
+    private lateinit var cardMetrics: MaterialCardView
+    private lateinit var rbBreathe: RadioButton
+    private lateinit var rbGoodApp: RadioButton
+    private lateinit var rbShame: RadioButton
+    private lateinit var rbMetrics: RadioButton
     private lateinit var goodAppCard: View
     private lateinit var selectedGoodAppRow: View
     private lateinit var emptyGoodAppState: TextView
@@ -32,7 +41,15 @@ class RitualFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        toggleGroup = view.findViewById(R.id.ritualToggleGroup)
+        optionsContainer = view.findViewById(R.id.ritualOptionsContainer)
+        cardBreathe = view.findViewById(R.id.cardRitualBreathe)
+        cardGoodApp = view.findViewById(R.id.cardRitualGoodApp)
+        cardShame = view.findViewById(R.id.cardRitualShame)
+        cardMetrics = view.findViewById(R.id.cardRitualMetrics)
+        rbBreathe = view.findViewById(R.id.rbRitualBreathe)
+        rbGoodApp = view.findViewById(R.id.rbRitualGoodApp)
+        rbShame = view.findViewById(R.id.rbRitualShame)
+        rbMetrics = view.findViewById(R.id.rbRitualMetrics)
         goodAppCard = view.findViewById(R.id.goodAppCard)
         selectedGoodAppRow = view.findViewById(R.id.selectedGoodAppRow)
         emptyGoodAppState = view.findViewById(R.id.tvGoodAppEmpty)
@@ -44,24 +61,31 @@ class RitualFragment : Fragment() {
             startActivity(Intent(requireContext(), GoodAppPickerActivity::class.java))
         }
 
-        toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (!isChecked) return@addOnButtonCheckedListener
+        cardBreathe.setOnClickListener { selectRitual(AnchorPrefs.RITUAL_BREATHING) }
+        cardGoodApp.setOnClickListener { selectRitual(AnchorPrefs.RITUAL_GOOD_APP) }
+        cardShame.setOnClickListener { selectRitual(AnchorPrefs.RITUAL_SHAME) }
+        cardMetrics.setOnClickListener { selectRitual(AnchorPrefs.RITUAL_METRICS) }
+    }
 
-            val ritualType = when (checkedId) {
-                R.id.btnRitualGoodApp -> AnchorPrefs.RITUAL_GOOD_APP
-                else -> AnchorPrefs.RITUAL_BREATHING
-            }
-            if (!suppressToggleEvents) {
-                requireContext()
-                    .getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
-                    .edit()
-                    .putString(AnchorPrefs.KEY_RITUAL_TYPE, ritualType)
-                    .apply()
+    private fun selectRitual(ritualType: String) {
+        if (!suppressToggleEvents) {
+            requireContext()
+                .getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putString(AnchorPrefs.KEY_RITUAL_TYPE, ritualType)
+                .apply()
 
-                TelemetryTracker.logEvent("ritual_changed", mapOf("ritual_type" to ritualType))
-            }
-            updateGoodAppCard(ritualType)
+            TelemetryTracker.logEvent("ritual_changed", mapOf("ritual_type" to ritualType))
         }
+        applySelection(ritualType)
+    }
+
+    private fun applySelection(ritualType: String) {
+        rbBreathe.isChecked = ritualType == AnchorPrefs.RITUAL_BREATHING
+        rbGoodApp.isChecked = ritualType == AnchorPrefs.RITUAL_GOOD_APP
+        rbShame.isChecked = ritualType == AnchorPrefs.RITUAL_SHAME
+        rbMetrics.isChecked = ritualType == AnchorPrefs.RITUAL_METRICS
+        updateGoodAppCard(ritualType)
     }
 
     // We do the Paywall check in onResume so that if they buy it and close the paywall,
@@ -74,7 +98,7 @@ class RitualFragment : Fragment() {
 
         if (!isPro) {
             // 1. Hide everything so they can't click anything behind the paywall
-            toggleGroup.visibility = View.GONE
+            optionsContainer.visibility = View.GONE
             goodAppCard.visibility = View.GONE
 
             // 2. Launch the Paywall instantly
@@ -86,23 +110,13 @@ class RitualFragment : Fragment() {
         }
 
         // --- THEY ARE PRO: SHOW THE UI ---
-        toggleGroup.visibility = View.VISIBLE
-        // Note: goodAppCard visibility is handled by updateGoodAppCard below
+        optionsContainer.visibility = View.VISIBLE
 
         val ritualType = prefs.getString(AnchorPrefs.KEY_RITUAL_TYPE, AnchorPrefs.RITUAL_BREATHING)
             ?: AnchorPrefs.RITUAL_BREATHING
-        val checkedId = if (ritualType == AnchorPrefs.RITUAL_GOOD_APP) {
-            R.id.btnRitualGoodApp
-        } else {
-            R.id.btnRitualBreathe
-        }
 
         suppressToggleEvents = true
-        if (toggleGroup.checkedButtonId != checkedId) {
-            toggleGroup.check(checkedId)
-        } else {
-            updateGoodAppCard(ritualType)
-        }
+        applySelection(ritualType)
         suppressToggleEvents = false
     }
 

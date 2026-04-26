@@ -8,6 +8,10 @@ object AnchorPrefs {
 
     fun jailbreakUntilKey(packageName: String) = "jailbreak_until_$packageName"
 
+    /** Per-package, per-day counter of "blocked app open" attempts. dayBucket should be `yyyy-MM-dd`. */
+    fun attemptsKey(packageName: String, dayBucket: String) =
+        "block_attempts_${packageName}_$dayBucket"
+
     const val KEY_BLOCKED_APPS = "blocked_apps"
     const val KEY_RITUAL_TYPE = "ritual_type"
     const val KEY_GOOD_APP_PACKAGE = "good_app_package"
@@ -20,4 +24,6 @@ object AnchorPrefs {
 
     const val RITUAL_BREATHING = "breathing"
     const val RITUAL_GOOD_APP = "good_app"
+    const val RITUAL_SHAME = "shame"
+    const val RITUAL_METRICS = "metrics"
 }

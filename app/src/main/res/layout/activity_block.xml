@@ -319,4 +319,281 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- Phase: shame typing -->
+    <ScrollView
+        android:id="@+id/shamePhase"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_status_pill"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp">
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/bg_status_dot_active" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/shame_overline"
+                    android:textAppearance="?attr/textAppearanceLabelSmall"
+                    android:textColor="#FFFFFFFF" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:gravity="center"
+                android:text="@string/shame_title"
+                android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                android:textColor="#FFFFFFFF"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/shame_hint"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="#CCFFFFFF" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                app:cardBackgroundColor="#26FFFFFF"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:id="@+id/tvShameTarget"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="18dp"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    android:textColor="#FFFFFFFF"
+                    android:textIsSelectable="false"
+                    android:lineSpacingMultiplier="1.2" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilShameInput"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="@string/shame_input_hint"
+                android:textColorHint="#99FFFFFF"
+                app:boxStrokeColor="#FFFFFFFF"
+                app:boxStrokeErrorColor="#FFFF8888"
+                app:hintTextColor="#FFFFFFFF">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etShameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints=""
+                    android:gravity="top|start"
+                    android:importantForAutofill="no"
+                    android:inputType="textMultiLine|textNoSuggestions|textVisiblePassword"
+                    android:maxLines="6"
+                    android:minLines="3"
+                    android:textColor="#FFFFFFFF"
+                    android:textCursorDrawable="@null" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/tvShameError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="#FFFFCDD2" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnShameConfirm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginHorizontal="0dp"
+                android:backgroundTint="#FFFFFFFF"
+                android:enabled="false"
+                android:text="@string/shame_confirm"
+                android:textColor="@color/anchor_primary_dark"
+                app:layout_constraintWidth_max="320dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnShameGoHome"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/go_home"
+                android:textColor="#CCFFFFFF" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Phase: metrics reality check -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/metricsPhase"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/metricsOverlineRow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_status_pill"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="8dp"
+            app:layout_constraintBottom_toTopOf="@id/metricsIconContainer"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed">
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/bg_status_dot_active" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/metrics_overline"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="#FFFFFFFF" />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/metricsIconContainer"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_marginTop="28dp"
+            android:background="@drawable/bg_block_icon"
+            app:layout_constraintBottom_toTopOf="@id/tvMetricsAppName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/metricsOverlineRow">
+
+            <ImageView
+                android:id="@+id/ivMetricsAppIcon"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/app_icon_desc" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvMetricsAppName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textAppearance="?attr/textAppearanceTitleLarge"
+            android:textColor="#FFFFFFFF"
+            app:layout_constraintBottom_toTopOf="@id/tvMetricsCount"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/metricsIconContainer" />
+
+        <TextView
+            android:id="@+id/tvMetricsCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:textAppearance="?attr/textAppearanceDisplayLarge"
+            android:textColor="#FFFFFFFF"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/tvMetricsSubtitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvMetricsAppName" />
+
+        <TextView
+            android:id="@+id/tvMetricsSubtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:textColor="#FFFFFFFF"
+            app:layout_constraintBottom_toTopOf="@id/tvMetricsMicrocopy"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvMetricsCount" />
+
+        <TextView
+            android:id="@+id/tvMetricsMicrocopy"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="16dp"
+            android:gravity="center"
+            android:text="@string/metrics_microcopy"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="#CCFFFFFF"
+            app:layout_constraintBottom_toTopOf="@id/pbMetrics"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvMetricsSubtitle" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/pbMetrics"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:layout_marginHorizontal="24dp"
+            android:max="1000"
+            android:progress="0"
+            app:indicatorColor="#FFFFFFFF"
+            app:trackColor="#33FFFFFF"
+            app:trackCornerRadius="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvMetricsMicrocopy" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

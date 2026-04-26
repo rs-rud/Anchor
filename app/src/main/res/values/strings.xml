@@ -20,6 +20,19 @@
     <string name="redirect_title">Choose the better path</string>
     <string name="redirect_subtitle">Opening %1$s instead.</string>
 
+    <!-- Shame ritual -->
+    <string name="shame_overline">Type to proceed</string>
+    <string name="shame_title">Say it out loud</string>
+    <string name="shame_hint">Match the sentence exactly. Capitals and punctuation count.</string>
+    <string name="shame_input_hint">Type the sentence here</string>
+    <string name="shame_confirm">Continue</string>
+    <string name="shame_error_format">%1$d character(s) off. Match exactly to continue.</string>
+
+    <!-- Metrics ritual -->
+    <string name="metrics_overline">Reality check</string>
+    <string name="metrics_subtitle_format">attempts on %1$s today</string>
+    <string name="metrics_microcopy">Be honest. This is your day so far.</string>
+
     <!-- Bottom Navigation -->
     <string name="nav_blocked_apps">Blocked</string>
     <string name="nav_geofence">Focus Zone</string>
@@ -42,7 +55,13 @@
     <string name="ritual_subtitle">Choose what Anchor does when a blocked app opens in your focus zone.</string>
     <string name="ritual_choice_heading">When I open a blocked app</string>
     <string name="ritual_choice_breathe">Breathe (10s)</string>
+    <string name="ritual_choice_breathe_desc">Run a 10-second guided breath before deciding.</string>
     <string name="ritual_choice_good_app">Open good app</string>
+    <string name="ritual_choice_good_app_desc">Auto-redirect to a productive app you choose.</string>
+    <string name="ritual_choice_shame">Type a sentence</string>
+    <string name="ritual_choice_shame_desc">Retype a sentence verbatim. Capitals and punctuation must match.</string>
+    <string name="ritual_choice_metrics">Show your usage</string>
+    <string name="ritual_choice_metrics_desc">See how many times you\'ve tried this app today, then wait 5 seconds.</string>
     <string name="good_app_heading">Good app</string>
     <string name="good_app_none_picked">Pick a good app to redirect to.</string>
     <string name="good_app_change">Change app</string>
@@ -93,4 +112,15 @@
 
     <string name="loading">Loading...</string>
     <string name="error_loading">Error loading packages</string>
+
+    <string-array name="shame_sentences">
+        <item>I am actively choosing to delay my progress and waste my time on this app.</item>
+        <item>Every minute I spend here is a minute I will never get back.</item>
+        <item>I know this app will not make my day better, and I am opening it anyway.</item>
+        <item>I am trading the future I want for a few minutes of distraction.</item>
+        <item>This is not rest. This is avoidance, and I am the one paying for it.</item>
+        <item>I told myself I would focus today, and right now I am breaking that promise.</item>
+        <item>Nothing on this app is more important than the work I am running from.</item>
+        <item>I will look back on this scroll session and wish I had used the time better.</item>
+    </string-array>
 </resources>
