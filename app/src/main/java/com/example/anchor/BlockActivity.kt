@@ -48,21 +48,6 @@ class BlockActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // #region agent log
-        AnchorDebugLog.init(this)
-        AnchorDebugLog.log(
-            hypothesisId = "H2",
-            location = "BlockActivity.kt:onCreate",
-            message = "block_activity_onCreate",
-            data = mapOf(
-                "ts" to System.currentTimeMillis(),
-                "hasSavedState" to (savedInstanceState != null),
-                "blockedPkg" to (intent.getStringExtra(EXTRA_BLOCKED_PACKAGE) ?: "null"),
-                "taskId" to taskId
-            ),
-            storageContext = this
-        )
-        // #endregion
         enableEdgeToEdge()
         setContentView(R.layout.activity_block)
 
@@ -76,15 +61,6 @@ class BlockActivity : AppCompatActivity() {
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    // #region agent log
-                    AnchorDebugLog.log(
-                        hypothesisId = "H5",
-                        location = "BlockActivity.kt:handleOnBackPressed",
-                        message = "back_press_intercepted",
-                        data = mapOf("ts" to System.currentTimeMillis()),
-                        storageContext = this@BlockActivity
-                    )
-                    // #endregion
                     goHome()
                 }
             }
@@ -159,19 +135,6 @@ class BlockActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        // #region agent log
-        AnchorDebugLog.log(
-            hypothesisId = "H2",
-            location = "BlockActivity.kt:onDestroy",
-            message = "block_activity_onDestroy",
-            data = mapOf(
-                "ts" to System.currentTimeMillis(),
-                "isFinishing" to isFinishing,
-                "isChangingConfigurations" to isChangingConfigurations
-            ),
-            storageContext = this
-        )
-        // #endregion
         super.onDestroy()
         breathingAnimator?.cancel()
         metricsAnimator?.cancel()
@@ -533,19 +496,6 @@ class BlockActivity : AppCompatActivity() {
     }
 
     private fun goHome() {
-        // #region agent log
-        AnchorDebugLog.log(
-            hypothesisId = "H4",
-            location = "BlockActivity.kt:goHome",
-            message = "go_home_called",
-            data = mapOf(
-                "ts" to System.currentTimeMillis(),
-                "blockedPkg" to (intent.getStringExtra(EXTRA_BLOCKED_PACKAGE) ?: "null"),
-                "taskId" to taskId
-            ),
-            storageContext = this
-        )
-        // #endregion
         val homeIntent = Intent(Intent.ACTION_MAIN).apply {
             addCategory(Intent.CATEGORY_HOME)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -575,28 +525,7 @@ class BlockActivity : AppCompatActivity() {
             val until = System.currentTimeMillis() + AnchorPrefs.JAILBREAK_DURATION_MS
             val prefs = getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
             val key = AnchorPrefs.jailbreakUntilKey(pkg)
-
-            AnchorDebugLog.log(
-                hypothesisId = "H2",
-                location = "BlockActivity.kt:openBlockedAppAnyway",
-                message = "before_jailbreak_commit",
-                data = mapOf(
-                    "pkg" to pkg,
-                    "until" to until,
-                    "usedCommit" to true
-                ),
-                storageContext = this
-            )
-
-            val committed = prefs.edit().putLong(key, until).commit()
-
-            AnchorDebugLog.log(
-                hypothesisId = "H2",
-                location = "BlockActivity.kt:openBlockedAppAnyway",
-                message = "after_jailbreak_commit",
-                data = mapOf("pkg" to pkg, "committed" to committed, "until" to until),
-                storageContext = this
-            )
+            prefs.edit().putLong(key, until).commit()
 
             launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(launch)

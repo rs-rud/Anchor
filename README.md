@@ -89,8 +89,6 @@ The **core of the blocker** — an `AccessibilityService` listening to `TYPE_WIN
 4. Honours a per‑package "jailbreak window" (`jailbreakUntilKey(pkg)`) — if a jailbreak timestamp is in the future, the app is allowed; if it's in the past, it's cleared.
 5. Otherwise launches `BlockActivity` with `FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK` and emits an `app_blocked` telemetry event.
 
-It also fires structured `AnchorDebugLog` entries describing each block decision.
-
 ### `BlockActivity.kt`
 The **takeover screen** shown over a blocked app. It has three phases controlled by visibility on `R.id.breathingPhase`, `R.id.focusPhase`, and `R.id.redirectPhase`:
 
@@ -164,9 +162,6 @@ A singleton `object` that lazily instantiates a Supabase client (`createSupabase
 
 - `registerDeviceIfNeeded(context)` — generates a UUID, persists it in `anchor_telemetry` prefs, and inserts an `app_installations` row (`user_id`, `device_sdk_int`, `ab_variant`).
 - `logEvent(eventType, metadata)` — fires a coroutine on `Dispatchers.IO` that inserts into `telemetry_events` with the user id, event type, and a `JsonObject` metadata bag. Failures are swallowed so telemetry never crashes the app.
-
-### `AnchorDebugLog.kt`
-A development‑only NDJSON logger used by `AppBlockerService` and `BlockActivity` to send structured "hypothesis" events (sessionId, hypothesisId, location, message, timestamp, runId, …data) to `http://10.0.2.2:7897/ingest/<id>` (the host machine from an emulator). All transport happens in a fire‑and‑forget `Thread`; failures are silent.
 
 ---
 

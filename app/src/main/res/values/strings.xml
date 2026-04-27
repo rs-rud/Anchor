@@ -81,7 +81,7 @@
     <string name="no_geofence_set">No focus zone yet</string>
     <string name="set_geofence_heading">Setup</string>
     <string name="set_geofence_headline">Set your focus zone</string>
-    <string name="address_hint">Enter address or location</string>
+    <string name="address_hint">Search address — suggestions appear as you type</string>
     <string name="radius_heading">Radius</string>
     <string name="radius_default_value">200 m</string>
     <string name="radius_default_label">Radius: 200m</string>

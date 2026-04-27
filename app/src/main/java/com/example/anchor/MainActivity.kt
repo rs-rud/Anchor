@@ -2,8 +2,6 @@ package com.example.anchor
 
 import android.Manifest
 import android.accessibilityservice.AccessibilityServiceInfo
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,7 +10,6 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.accessibility.AccessibilityManager
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -21,7 +18,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.revenuecat.purchases.Purchases
 import com.revenuecat.purchases.PurchasesConfiguration
@@ -29,12 +25,16 @@ import com.revenuecat.purchases.getCustomerInfoWith
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var bottomNav: BottomNavigationView
+
+    /** When true, [BottomNavigationView] selection was updated programmatically; skip duplicate fragment loads. */
+    private var programTabChange = false
+
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val fineGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
         if (fineGranted) {
-            // ---> TRACKING INJECTED HERE
             TelemetryTracker.logEvent("permission_granted", mapOf("type" to "fine_location"))
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -49,7 +49,6 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
-            // ---> TRACKING INJECTED HERE
             TelemetryTracker.logEvent("permission_granted", mapOf("type" to "background_location"))
         } else {
             TelemetryTracker.logEvent("permission_denied", mapOf("type" to "background_location"))
@@ -60,29 +59,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // #region agent log
-        AnchorDebugLog.init(this)
-        // #endregion
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-
-        // #region agent log
-        findViewById<MaterialButton>(R.id.btnCopyDebugLog)?.setOnClickListener {
-            val text = AnchorDebugLog.readAll()
-            if (text.isBlank()) {
-                Toast.makeText(this, "Debug log is empty", Toast.LENGTH_SHORT).show()
-            } else {
-                val clip = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-                clip.setPrimaryClip(ClipData.newPlainText("anchor-debug", text))
-                Toast.makeText(this, "Debug log copied (${text.lines().size} lines)", Toast.LENGTH_SHORT).show()
-            }
-        }
-        findViewById<MaterialButton>(R.id.btnCopyDebugLog)?.setOnLongClickListener {
-            AnchorDebugLog.clear()
-            Toast.makeText(this, "Debug log cleared", Toast.LENGTH_SHORT).show()
-            true
-        }
-        // #endregion
 
         TelemetryTracker.logEvent("app_opened")
         Purchases.configure(PurchasesConfiguration.Builder(this, REVENUECAT_KEY).build())
@@ -106,13 +84,13 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
-
-        if (savedInstanceState == null) {
-            loadFragment(BlockedAppsFragment())
-        }
+        bottomNav = findViewById(R.id.bottomNav)
 
         bottomNav.setOnItemSelectedListener { item ->
+            if (programTabChange) {
+                // Selection already applied with commitNow in [openTabFromIntentIfPresent]
+                return@setOnItemSelectedListener true
+            }
             when (item.itemId) {
                 R.id.nav_blocked_apps -> {
                     loadFragment(BlockedAppsFragment())
@@ -129,25 +107,52 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+
+        if (savedInstanceState == null) {
+            if (!openTabFromIntentIfPresent(intent)) {
+                loadFragment(BlockedAppsFragment())
+            }
+        } else {
+            openTabFromIntentIfPresent(intent)
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        openTabFromIntentIfPresent(intent)
+    }
+
+    private fun openTabFromIntentIfPresent(intent: Intent?): Boolean {
+        if (intent == null) return false
+        val tabId = intent.getIntExtra(EXTRA_OPEN_TAB_ITEM_ID, -1)
+        if (tabId == -1) return false
+        intent.removeExtra(EXTRA_OPEN_TAB_ITEM_ID)
+        val fragment: Fragment = when (tabId) {
+            R.id.nav_blocked_apps -> BlockedAppsFragment()
+            R.id.nav_geofence -> GeofenceFragment()
+            R.id.nav_ritual -> RitualFragment()
+            else -> return false
+        }
+        // commit() is async — RitualFragment could still be resumed and re-launch the paywall before
+        // the tab switch applies. commitNow() removes Ritual from the back stack before Main resumes.
+        programTabChange = true
+        try {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment)
+                .commitNow()
+            bottomNav.selectedItemId = tabId
+        } finally {
+            programTabChange = false
+        }
+        return true
     }
 
     override fun onResume() {
         super.onResume()
-
-        // #region agent log
-        AnchorDebugLog.log(
-            hypothesisId = "H3",
-            location = "MainActivity.kt:onResume",
-            message = "app_foregrounded",
-            data = mapOf("ts" to System.currentTimeMillis()),
-            storageContext = this
-        )
-        // #endregion
-
         TelemetryTracker.registerDeviceIfNeeded(this);
         val isEnabled = isAccessibilityServiceEnabled()
 
-        // ---> TRACKING INJECTED HERE
         TelemetryTracker.logEvent("accessibility_status_check", mapOf("is_enabled" to isEnabled.toString()))
 
         if (!isEnabled) {
@@ -217,5 +222,13 @@ class MainActivity : AppCompatActivity() {
                 .setNegativeButton(R.string.later, null)
                 .show()
         }
+    }
+
+    companion object {
+        /**
+         * When set, MainActivity shows this bottom-nav tab (e.g. after dismissing the ritual paywall
+         * so [RitualFragment] does not immediately re-launch the paywall).
+         */
+        const val EXTRA_OPEN_TAB_ITEM_ID = "extra_open_tab_item_id"
     }
 }

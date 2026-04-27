@@ -37,19 +37,14 @@ class PaywallActivity : AppCompatActivity() {
         btnSubscribe = findViewById(R.id.btnSubscribe)
         btnClose = findViewById(R.id.btnClosePaywall)
         val btnRestore = findViewById<TextView>(R.id.tvRestorePurchases)
+        val paywallRoot = findViewById<View>(R.id.paywallRoot)
 
-        // Find the title for the secret bypass
-        val secretBypassView = findViewById<View>(R.id.paywallRoot)
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.paywallRoot)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(paywallRoot) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        // ==========================================
-        // FIX 1: THE INFINITE LOOP FIX
-        // ==========================================
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 escapeToHomeTab()
@@ -57,11 +52,8 @@ class PaywallActivity : AppCompatActivity() {
         })
         btnClose.setOnClickListener { escapeToHomeTab() }
 
-        // ==========================================
-        // FIX 2: THE SECRET DEV BYPASS
-        // ==========================================
-// Change tvTitle.setOnClickListener to:
-        secretBypassView.setOnClickListener {
+        // Dev-only: five taps on the paywall root unlocks Pro locally (builds without release keys).
+        paywallRoot.setOnClickListener {
             secretTapCount++
             if (secretTapCount == 5) {
                 Toast.makeText(this, "DEV OVERRIDE: Pro Unlocked", Toast.LENGTH_SHORT).show()
@@ -73,9 +65,6 @@ class PaywallActivity : AppCompatActivity() {
             }
         }
 
-        // ==========================================
-        // REAL REVENUECAT LOGIC
-        // ==========================================
         btnRestore.setOnClickListener { restorePurchases() }
 
         btnSubscribe.setOnClickListener {
@@ -88,10 +77,9 @@ class PaywallActivity : AppCompatActivity() {
     }
 
     private fun escapeToHomeTab() {
-        // This explicitly routes them back to MainActivity and clears the stack,
-        // preventing RitualFragment from looping the paywall!
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(MainActivity.EXTRA_OPEN_TAB_ITEM_ID, R.id.nav_blocked_apps)
         }
         startActivity(intent)
         finish()

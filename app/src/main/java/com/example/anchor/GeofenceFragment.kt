@@ -4,15 +4,22 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.location.Geocoder
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.ListPopupWindow
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import java.io.IOException
 import java.util.Locale
 
@@ -20,6 +27,16 @@ class GeofenceFragment : Fragment() {
 
     private lateinit var prefs: SharedPreferences
     private lateinit var geofenceManager: GeofenceManager
+
+    private val addressSearchHandler = Handler(Looper.getMainLooper())
+    private var addressDebounce: Runnable? = null
+    private var addressSearchSerial = 0
+    private var selectedNominatim: NominatimAddressResult? = null
+    private val addressPopupData = ArrayList<NominatimAddressResult>()
+    private var addressListPopup: ListPopupWindow? = null
+    private var addressPopupAdapter: ArrayAdapter<NominatimAddressResult>? = null
+    private var addressTextWatcher: TextWatcher? = null
+    private var addressSkipDebounce: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -31,6 +48,7 @@ class GeofenceFragment : Fragment() {
         prefs = requireContext().getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
         geofenceManager = GeofenceManager(requireContext())
 
+        val tilAddress = view.findViewById<TextInputLayout>(R.id.tilAddress)
         val etAddress = view.findViewById<TextInputEditText>(R.id.etAddress)
         val sliderRadius = view.findViewById<Slider>(R.id.sliderRadius)
         val tvRadiusLabel = view.findViewById<TextView>(R.id.tvRadiusLabel)
@@ -48,6 +66,8 @@ class GeofenceFragment : Fragment() {
         }
         tvRadiusLabel.text = formatRadiusValue(sliderRadius.value.toInt())
 
+        setupAddressAutocomplete(tilAddress, etAddress)
+
         btnSet.setOnClickListener {
             val address = etAddress.text?.toString()?.trim()
             if (address.isNullOrBlank()) {
@@ -56,8 +76,11 @@ class GeofenceFragment : Fragment() {
             }
 
             val radiusMeters = sliderRadius.value
+            val fromSuggestion = selectedNominatim
+                .takeIf { it.displayName == address }
             resolveAndSetGeofence(
                 address,
+                fromSuggestion,
                 radiusMeters,
                 tvStatusValue,
                 insideOutsideContainer,
@@ -102,25 +125,6 @@ class GeofenceFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-
-        // #region agent log
-        run {
-            val p = requireContext().getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
-            AnchorDebugLog.log(
-                hypothesisId = "H3",
-                location = "GeofenceFragment.kt:onResume",
-                message = "fragment_resumed_state_read_from_prefs",
-                data = mapOf(
-                    "geofenceActive" to p.getBoolean(AnchorPrefs.KEY_GEOFENCE_ACTIVE, false),
-                    "isInsideGeofence" to p.getBoolean(AnchorPrefs.KEY_IS_INSIDE_GEOFENCE, false),
-                    "ts" to System.currentTimeMillis(),
-                    "doesRefreshLocation" to false
-                ),
-                storageContext = requireContext()
-            )
-        }
-        // #endregion
-
         val root = view ?: return
         val tvStatusValue = root.findViewById<TextView>(R.id.tvStatusValue) ?: return
         val insideOutsideContainer = root.findViewById<View>(R.id.insideOutsideContainer) ?: return
@@ -138,6 +142,105 @@ class GeofenceFragment : Fragment() {
             heroStatusDot,
             heroStatusLabel
         )
+    }
+
+    override fun onDestroyView() {
+        addressDebounce?.let { addressSearchHandler.removeCallbacks(it) }
+        addressDebounce = null
+        addressListPopup?.dismiss()
+        addressListPopup = null
+        addressPopupAdapter = null
+        val et = view?.findViewById<TextInputEditText>(R.id.etAddress)
+        addressTextWatcher?.let { et?.removeTextChangedListener(it) }
+        addressTextWatcher = null
+        super.onDestroyView()
+    }
+
+    private fun setupAddressAutocomplete(
+        tilAddress: TextInputLayout,
+        etAddress: TextInputEditText
+    ) {
+        val popup = ListPopupWindow(requireContext())
+        val adapter = ArrayAdapter(
+            requireContext(),
+            R.layout.item_address_dropdown,
+            android.R.id.text1,
+            addressPopupData
+        )
+        addressPopupAdapter = adapter
+        popup.setAdapter(adapter)
+        popup.isModal = true
+        popup.setOnItemClickListener { _, _, pos, _ ->
+            val r = addressPopupData.getOrNull(pos) ?: return@setOnItemClickListener
+            selectedNominatim = r
+            addressSkipDebounce = true
+            etAddress.setText(r.displayName)
+            etAddress.setSelection(r.displayName.length)
+            etAddress.error = null
+            popup.dismiss()
+        }
+        addressListPopup = popup
+
+        val watcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val text = s?.toString() ?: ""
+                if (addressSkipDebounce) {
+                    addressSkipDebounce = false
+                    return
+                }
+                if (selectedNominatim != null && text != selectedNominatim?.displayName) {
+                    selectedNominatim = null
+                }
+                addressDebounce?.let { addressSearchHandler.removeCallbacks(it) }
+                if (text.trim().length < 3) {
+                    addressListPopup?.dismiss()
+                    return
+                }
+                val run = Runnable {
+                    runAddressSearch(text.trim().toString(), etAddress, tilAddress)
+                }
+                addressDebounce = run
+                addressSearchHandler.postDelayed(run, 500L)
+            }
+        }
+        addressTextWatcher = watcher
+        etAddress.addTextChangedListener(watcher)
+    }
+
+    private fun runAddressSearch(
+        query: String,
+        etAddress: TextInputEditText,
+        tilAddress: TextInputLayout
+    ) {
+        if (query.length < 3) return
+        val serial = ++addressSearchSerial
+        Thread {
+            val list = NominatimAddressSearch.search(query)
+            requireActivity().runOnUiThread {
+                if (serial != addressSearchSerial) return@runOnUiThread
+                if (etAddress.text?.toString()?.trim() != query) return@runOnUiThread
+                addressPopupData.clear()
+                addressPopupData.addAll(list)
+                addressPopupAdapter?.notifyDataSetChanged()
+                val popup = addressListPopup ?: return@runOnUiThread
+                popup.anchorView = tilAddress
+                val w = tilAddress.width
+                if (w > 0) popup.setContentWidth(w) else {
+                    tilAddress.post {
+                        if (tilAddress.width > 0) {
+                            addressListPopup?.setContentWidth(tilAddress.width)
+                        }
+                    }
+                }
+                if (addressPopupData.isEmpty()) {
+                    popup.dismiss()
+                } else if (etAddress.isFocused) {
+                    popup.show()
+                }
+            }
+        }.start()
     }
 
     private fun formatRadiusValue(radius: Int): String = "${radius} m"
@@ -181,6 +284,7 @@ class GeofenceFragment : Fragment() {
 
     private fun resolveAndSetGeofence(
         address: String,
+        fromSuggestion: NominatimAddressResult?,
         radiusMeters: Float,
         tvStatusValue: TextView,
         insideOutsideContainer: View,
@@ -190,6 +294,39 @@ class GeofenceFragment : Fragment() {
         heroStatusDot: View,
         heroStatusLabel: TextView
     ) {
+        if (fromSuggestion != null) {
+            prefs.edit().putString(AnchorPrefs.KEY_GEOFENCE_ADDRESS, address).apply()
+            geofenceManager.addGeofence(
+                lat = fromSuggestion.latitude,
+                lng = fromSuggestion.longitude,
+                radiusMeters = radiusMeters,
+                onSuccess = {
+                    requireActivity().runOnUiThread {
+                        Toast.makeText(requireContext(), R.string.geofence_set_success, Toast.LENGTH_SHORT).show()
+                        refreshStatus(
+                            tvStatusValue,
+                            insideOutsideContainer,
+                            tvInsideOutside,
+                            tvInsideOutsideDot,
+                            btnRemove,
+                            heroStatusDot,
+                            heroStatusLabel
+                        )
+                    }
+                },
+                onFailure = { e ->
+                    requireActivity().runOnUiThread {
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.geofence_set_failed, e.message),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            )
+            return
+        }
+
         Thread {
             try {
                 val geocoder = Geocoder(requireContext(), Locale.getDefault())

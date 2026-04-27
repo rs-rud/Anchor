@@ -71,20 +71,6 @@ class GeofenceManager(private val context: Context) {
             geofencingClient.addGeofences(request, geofencePendingIntent).run {
                 addOnSuccessListener {
                     Log.d(TAG, "Geofence added: $requestId at ($lat, $lng) r=${radiusMeters}m")
-                    // #region agent log
-                    AnchorDebugLog.log(
-                        hypothesisId = "H4",
-                        location = "GeofenceManager.kt:addGeofence:success",
-                        message = "geofence_registered",
-                        data = mapOf(
-                            "lat" to lat,
-                            "lng" to lng,
-                            "radius" to radiusMeters,
-                            "requestId" to requestId
-                        ),
-                        storageContext = context
-                    )
-                    // #endregion
                     saveGeofenceToPrefs(lat, lng, radiusMeters)
                     checkIfAlreadyInsideGeofence(lat, lng, radiusMeters)
                     scheduleLocationRefreshWork()
@@ -232,28 +218,10 @@ class GeofenceManager(private val context: Context) {
                 logTag,
                 "Inside check: distance=${distance}m, radius=${radiusMeters}m, inside=$inside"
             )
-            val prefs = context.getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
-            val previousInside = prefs.getBoolean(AnchorPrefs.KEY_IS_INSIDE_GEOFENCE, false)
-            prefs.edit().putBoolean(AnchorPrefs.KEY_IS_INSIDE_GEOFENCE, inside).apply()
-
-            // #region agent log
-            AnchorDebugLog.log(
-                hypothesisId = "H3",
-                location = "GeofenceManager.kt:applyInsideStateFromLocation",
-                message = "inside_state_written",
-                data = mapOf(
-                    "caller" to logTag,
-                    "previousInside" to previousInside,
-                    "newInside" to inside,
-                    "changed" to (previousInside != inside),
-                    "distanceM" to distance,
-                    "radiusM" to radiusMeters,
-                    "locTime" to location.time,
-                    "ageSec" to ((System.currentTimeMillis() - location.time) / 1000)
-                ),
-                storageContext = context
-            )
-            // #endregion
+            context.getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(AnchorPrefs.KEY_IS_INSIDE_GEOFENCE, inside)
+                .apply()
         }
     }
 }
