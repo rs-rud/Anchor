@@ -199,6 +199,15 @@ class BlockActivity : AppCompatActivity() {
                     val circle = findViewById<View>(R.id.breathingCircle)
                     circle.scaleX = 1f
                     circle.scaleY = 1f
+                    val blockedPackage = intent.getStringExtra(EXTRA_BLOCKED_PACKAGE).orEmpty()
+                    TelemetryTracker.logEvent(
+                        eventType = "breathing_completed",
+                        metadata = mapOf(
+                            "package" to blockedPackage,
+                            "duration_sec" to BREATHING_DURATION_SEC.toString(),
+                            "ritual_type" to prefsRitualType()
+                        )
+                    )
                     transitionToFocusPhase()
                 } else {
                     findViewById<TextView>(R.id.tvBreathingCountdown).text = secondsRemaining.toString()
@@ -276,6 +285,11 @@ class BlockActivity : AppCompatActivity() {
         return diff
     }
 
+    private fun prefsRitualType(): String =
+        getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
+            .getString(AnchorPrefs.KEY_RITUAL_TYPE, AnchorPrefs.RITUAL_BREATHING)
+            ?: AnchorPrefs.RITUAL_BREATHING
+
     private fun onShameConfirmed() {
         val target = shameTargetSentence ?: return
         val input = findViewById<TextInputEditText>(R.id.etShameInput).text?.toString().orEmpty()
@@ -288,7 +302,8 @@ class BlockActivity : AppCompatActivity() {
             eventType = "shame_completed",
             metadata = mapOf(
                 "package" to blockedPackage,
-                "sentence_length" to target.length.toString()
+                "sentence_length" to target.length.toString(),
+                "ritual_type" to prefsRitualType()
             )
         )
 
@@ -314,7 +329,8 @@ class BlockActivity : AppCompatActivity() {
             eventType = "metrics_shown",
             metadata = mapOf(
                 "package" to blockedPackage,
-                "attempts_today" to attempts.toString()
+                "attempts_today" to attempts.toString(),
+                "ritual_type" to prefsRitualType()
             )
         )
 
@@ -486,7 +502,8 @@ class BlockActivity : AppCompatActivity() {
             eventType = "block_redirected_to_good_app",
             metadata = mapOf(
                 "blocked_package" to blockedPackage,
-                "good_package" to packageName
+                "good_package" to packageName,
+                "ritual_type" to prefsRitualType()
             )
         )
 
