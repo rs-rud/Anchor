@@ -76,8 +76,7 @@ class GeofenceFragment : Fragment() {
             }
 
             val radiusMeters = sliderRadius.value
-            val fromSuggestion = selectedNominatim
-                .takeIf { it.displayName == address }
+            val fromSuggestion = selectedNominatim?.takeIf { it.displayName == address }
             resolveAndSetGeofence(
                 address,
                 fromSuggestion,
