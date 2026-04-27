@@ -241,6 +241,18 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnUseCurrentLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/use_current_location"
+                    app:icon="@drawable/ic_location"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    app:iconTint="?attr/colorPrimary"
+                    style="@style/Widget.Material3.Button.TextButton" />
+
                 <!-- RADIUS LABEL ROW -->
                 <LinearLayout
                     android:layout_width="match_parent"

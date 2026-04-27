@@ -81,7 +81,13 @@
     <string name="no_geofence_set">No focus zone yet</string>
     <string name="set_geofence_heading">Setup</string>
     <string name="set_geofence_headline">Set your focus zone</string>
-    <string name="address_hint">Search address — suggestions appear as you type</string>
+    <string name="address_hint">Search address — pick a suggestion or use current location</string>
+    <string name="use_current_location">Use current location</string>
+    <string name="location_permission_required">Location permission is needed to use your current position.</string>
+    <string name="current_location_failed">Could not read your location. Try again or pick an address from search.</string>
+    <string name="coordinates_fallback_format">%1$.5f, %2$.5f</string>
+    <string name="places_not_configured">Add PLACES_API_KEY to local.properties and enable Places API for address suggestions.</string>
+    <string name="address_pick_suggestion_or_location">Choose an address from the suggestions or tap Use current location, then set your focus zone.</string>
     <string name="radius_heading">Radius</string>
     <string name="radius_default_value">200 m</string>
     <string name="radius_default_label">Radius: 200m</string>

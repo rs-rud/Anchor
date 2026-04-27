@@ -25,6 +25,9 @@ android {
         buildConfigField("String", "SUPABASE_URL", "\"${localProperties.getProperty("SUPABASE_URL")}\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${localProperties.getProperty("SUPABASE_ANON_KEY")}\"")
         buildConfigField("String", "REVENUECAT_KEY", "\"${localProperties.getProperty("REVENUECAT_KEY")}\"")
+        val placesKey = localProperties.getProperty("PLACES_API_KEY", "")
+        buildConfigField("String", "PLACES_API_KEY", "\"$placesKey\"")
+        manifestPlaceholders["PLACES_API_KEY"] = placesKey
     }
 
     buildFeatures {
@@ -53,6 +56,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.play.services.location)
+    implementation(libs.places)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.fragment)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")

@@ -13,7 +13,7 @@ The repo also contains a small React Native prototype (`App.tsx`) that experimen
 │  Android app (com.example.anchor) — Kotlin, Material 3, single APK │
 └────────────────────────────────────────────────────────────────────┘
 
-User picks address ─► Geocoder ─► GeofenceManager
+User picks address (Places autocomplete or current location) ─► resolved lat/lng ─► GeofenceManager
                                        │
                                        ▼
                        Play Services Geofencing API + WorkManager
@@ -113,10 +113,17 @@ A trivial `data class` with `name: String`, `packageName: String`, `icon: Drawab
 The "Focus Zone" tab. Reads/writes geofence keys in `anchor_prefs` and:
 
 - Renders a hero status pill (`hero_idle_label` / `hero_active_label`) tied to `KEY_GEOFENCE_ACTIVE`.
-- Lets the user enter an address into a `TextInputEditText` and pick a radius via a `Slider`.
-- On "Set focus zone," runs a `Geocoder.getFromLocationName` lookup on a `Thread`, and on success calls `GeofenceManager.addGeofence(lat, lng, radius)`. The address text is saved separately to `KEY_GEOFENCE_ADDRESS` for display.
+- Address entry uses **Google Places** programmatic autocomplete (debounced predictions + place details for coordinates) when `PLACES_API_KEY` is set and `Places` is initialized in `AnchorApplication`. Suggestions are biased near `lastLocation` when location permission is granted. **Use current location** fuses `FusedLocationProviderClient` with reverse `Geocoder` and stores a `ResolvedGeofenceAddress` the same way as a Places pick.
+- The user must **choose a suggestion or use current location** before "Set focus zone" — ad‑hoc typed text alone is not geocoded (avoids unreliable `Geocoder.getFromLocationName`).
+- On "Set focus zone," calls `GeofenceManager.addGeofence(lat, lng, radius)` with the resolved coordinates. The address text is saved to `KEY_GEOFENCE_ADDRESS` for display. Successful sets log telemetry `focus_zone_set` with `source` `places` or `gps`.
 - On "Remove focus zone," calls `GeofenceManager.removeGeofence` and resets the UI.
 - `onResume()` re‑reads prefs to display the live inside/outside status (`KEY_IS_INSIDE_GEOFENCE`).
+
+### `AnchorApplication.kt`
+Initializes the Places SDK when `BuildConfig.PLACES_API_KEY` is non‑empty so autocomplete can create a `PlacesClient`.
+
+### `ResolvedGeofenceAddress.kt`
+Small data class: display `label` plus `latitude` / `longitude`, with `fromGps` distinguishing current‑location picks from Places.
 
 ### `GeofenceManager.kt`
 Thin wrapper over **Play Services Geofencing**. Responsibilities:
@@ -183,14 +190,16 @@ A singleton `object` that lazily instantiates a Supabase client (`createSupabase
 
 - `compileSdk = 36`, `minSdk = 24`, `targetSdk = 36`
 - Java 11 source/target compatibility, Kotlin 1.9 with kotlinx.serialization plugin
-- Reads three secrets out of `local.properties` and exposes them as `BuildConfig` fields:
+- Reads secrets out of `local.properties` and exposes them as `BuildConfig` fields / manifest placeholders:
   - `SUPABASE_URL`
   - `SUPABASE_ANON_KEY`
   - `REVENUECAT_KEY`
+  - `PLACES_API_KEY` (also injected as `com.google.android.geo.API_KEY` for the Places SDK)
 - Key dependencies:
   - AndroidX core‑ktx, appcompat, activity, fragment, constraintlayout, work‑runtime‑ktx
   - Google Material 3
   - `play-services-location` (geofencing + fused location)
+  - `com.google.android.libraries.places:places` (address autocomplete)
   - `kotlinx-coroutines-play-services` (`.await()` on Play Services Tasks)
   - `io.github.jan-tennert.supabase:postgrest-kt` + `ktor-client-android` + `kotlinx-serialization-json` (telemetry)
   - `com.revenuecat.purchases:purchases` (paywall)
@@ -201,7 +210,10 @@ A singleton `object` that lazily instantiates a Supabase client (`createSupabase
 SUPABASE_URL=https://<your-project>.supabase.co
 SUPABASE_ANON_KEY=<your-anon-key>
 REVENUECAT_KEY=<your-revenuecat-android-key>
+PLACES_API_KEY=<your-google-places-android-restricted-key>
 ```
+
+Enable **Places API** (and billing) on the key’s Google Cloud project; restrict the key to your app’s package + SHA‑1.
 
 ---
 
@@ -220,7 +232,7 @@ The UI is a simple SafeAreaView with status rows, calibration/monitor controls, 
 ## Runtime flow (end‑to‑end)
 
 1. User installs the app, opens it → `MainActivity` shows the accessibility prompt and runs the location permission gauntlet.
-2. User goes to the **Focus Zone** tab, types an address, picks a radius, and taps "Set focus zone." Geocoder resolves it; `GeofenceManager` registers the geofence and writes coordinates + `KEY_GEOFENCE_ACTIVE = true` to prefs.
+2. User goes to the **Focus Zone** tab, picks an address from Places suggestions (or **Use current location**), picks a radius, and taps "Set focus zone." `GeofenceManager` registers the geofence and writes coordinates + `KEY_GEOFENCE_ACTIVE = true` to prefs.
 3. User goes to the **Blocked** tab and toggles the apps they want paused. Each toggle updates `KEY_BLOCKED_APPS`.
 4. (Optional) User goes to the **Ritual** tab and switches from "Breathe (10 s)" to "Open good app," then picks a productive app via `GoodAppPickerActivity`.
 5. When the user enters the geofence, Play Services fires `GeofenceBroadcastReceiver` → `KEY_IS_INSIDE_GEOFENCE = true`. (The 15‑min worker keeps this honest if Play Services hiccups.)
@@ -237,7 +249,7 @@ The UI is a simple SafeAreaView with status rows, calibration/monitor controls, 
 | `ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION` | Geofence registration and `lastLocation` reads |
 | `ACCESS_BACKGROUND_LOCATION` (Q+) | So geofence transitions fire when the app is closed |
 | `RECEIVE_BOOT_COMPLETED` | Re‑register geofences after reboot via `BootCompletedReceiver` |
-| `INTERNET` | Telemetry to Supabase + RevenueCat + Geocoder |
+| `INTERNET` | Telemetry to Supabase + RevenueCat + Places / geocoding |
 | `BIND_ACCESSIBILITY_SERVICE` | Required by `AppBlockerService` to read foreground app changes |
 
 The user must additionally enable **Anchor App Blocker** in *Settings → Accessibility* — `MainActivity` checks this on every resume and prompts via `MaterialAlertDialogBuilder`.
