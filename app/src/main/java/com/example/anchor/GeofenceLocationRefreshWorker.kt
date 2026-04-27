@@ -22,8 +22,26 @@ class GeofenceLocationRefreshWorker(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
+        // #region agent log
+        AnchorDebugLog.log(
+            hypothesisId = "H2",
+            location = "GeofenceLocationRefreshWorker.kt:doWork:entry",
+            message = "worker_started",
+            data = mapOf("ts" to System.currentTimeMillis()),
+            storageContext = applicationContext
+        )
+        // #endregion
+
         val prefs = applicationContext.getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
         if (!prefs.getBoolean(AnchorPrefs.KEY_GEOFENCE_ACTIVE, false)) {
+            // #region agent log
+            AnchorDebugLog.log(
+                hypothesisId = "H2",
+                location = "GeofenceLocationRefreshWorker.kt:doWork:noActiveFence",
+                message = "worker_skipped_no_active_fence",
+                storageContext = applicationContext
+            )
+            // #endregion
             return Result.success()
         }
 
@@ -48,9 +66,33 @@ class GeofenceLocationRefreshWorker(
         }
 
         if (location == null) {
+            // #region agent log
+            AnchorDebugLog.log(
+                hypothesisId = "H5",
+                location = "GeofenceLocationRefreshWorker.kt:doWork:nullLocation",
+                message = "worker_got_null_location",
+                storageContext = applicationContext
+            )
+            // #endregion
             Log.d(TAG, "No location available this cycle")
             return Result.success()
         }
+
+        // #region agent log
+        AnchorDebugLog.log(
+            hypothesisId = "H5",
+            location = "GeofenceLocationRefreshWorker.kt:doWork:gotLocation",
+            message = "worker_got_location",
+            data = mapOf(
+                "locTime" to location.time,
+                "ageSec" to ((System.currentTimeMillis() - location.time) / 1000),
+                "accuracyM" to location.accuracy,
+                "hasLat" to (location.latitude != 0.0),
+                "provider" to (location.provider ?: "null")
+            ),
+            storageContext = applicationContext
+        )
+        // #endregion
 
         GeofenceManager.applyInsideStateFromLocation(
             applicationContext,

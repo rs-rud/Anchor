@@ -49,6 +49,7 @@ class BlockActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // #region agent log
+        AnchorDebugLog.init(this)
         AnchorDebugLog.log(
             hypothesisId = "H2",
             location = "BlockActivity.kt:onCreate",
@@ -58,7 +59,8 @@ class BlockActivity : AppCompatActivity() {
                 "hasSavedState" to (savedInstanceState != null),
                 "blockedPkg" to (intent.getStringExtra(EXTRA_BLOCKED_PACKAGE) ?: "null"),
                 "taskId" to taskId
-            )
+            ),
+            storageContext = this
         )
         // #endregion
         enableEdgeToEdge()
@@ -79,7 +81,8 @@ class BlockActivity : AppCompatActivity() {
                         hypothesisId = "H5",
                         location = "BlockActivity.kt:handleOnBackPressed",
                         message = "back_press_intercepted",
-                        data = mapOf("ts" to System.currentTimeMillis())
+                        data = mapOf("ts" to System.currentTimeMillis()),
+                        storageContext = this@BlockActivity
                     )
                     // #endregion
                     goHome()
@@ -165,7 +168,8 @@ class BlockActivity : AppCompatActivity() {
                 "ts" to System.currentTimeMillis(),
                 "isFinishing" to isFinishing,
                 "isChangingConfigurations" to isChangingConfigurations
-            )
+            ),
+            storageContext = this
         )
         // #endregion
         super.onDestroy()
@@ -538,7 +542,8 @@ class BlockActivity : AppCompatActivity() {
                 "ts" to System.currentTimeMillis(),
                 "blockedPkg" to (intent.getStringExtra(EXTRA_BLOCKED_PACKAGE) ?: "null"),
                 "taskId" to taskId
-            )
+            ),
+            storageContext = this
         )
         // #endregion
         val homeIntent = Intent(Intent.ACTION_MAIN).apply {
@@ -579,7 +584,8 @@ class BlockActivity : AppCompatActivity() {
                     "pkg" to pkg,
                     "until" to until,
                     "usedCommit" to true
-                )
+                ),
+                storageContext = this
             )
 
             val committed = prefs.edit().putLong(key, until).commit()
@@ -588,7 +594,8 @@ class BlockActivity : AppCompatActivity() {
                 hypothesisId = "H2",
                 location = "BlockActivity.kt:openBlockedAppAnyway",
                 message = "after_jailbreak_commit",
-                data = mapOf("pkg" to pkg, "committed" to committed, "until" to until)
+                data = mapOf("pkg" to pkg, "committed" to committed, "until" to until),
+                storageContext = this
             )
 
             launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)

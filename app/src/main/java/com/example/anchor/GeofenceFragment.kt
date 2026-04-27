@@ -102,6 +102,25 @@ class GeofenceFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+
+        // #region agent log
+        run {
+            val p = requireContext().getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
+            AnchorDebugLog.log(
+                hypothesisId = "H3",
+                location = "GeofenceFragment.kt:onResume",
+                message = "fragment_resumed_state_read_from_prefs",
+                data = mapOf(
+                    "geofenceActive" to p.getBoolean(AnchorPrefs.KEY_GEOFENCE_ACTIVE, false),
+                    "isInsideGeofence" to p.getBoolean(AnchorPrefs.KEY_IS_INSIDE_GEOFENCE, false),
+                    "ts" to System.currentTimeMillis(),
+                    "doesRefreshLocation" to false
+                ),
+                storageContext = requireContext()
+            )
+        }
+        // #endregion
+
         val root = view ?: return
         val tvStatusValue = root.findViewById<TextView>(R.id.tvStatusValue) ?: return
         val insideOutsideContainer = root.findViewById<View>(R.id.insideOutsideContainer) ?: return

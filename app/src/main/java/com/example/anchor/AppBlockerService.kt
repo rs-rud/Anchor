@@ -25,6 +25,16 @@ class AppBlockerService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        // #region agent log
+        AnchorDebugLog.init(this)
+        AnchorDebugLog.log(
+            hypothesisId = "INIT",
+            location = "AppBlockerService.kt:onServiceConnected",
+            message = "service_connected",
+            data = mapOf("ts" to System.currentTimeMillis()),
+            storageContext = this
+        )
+        // #endregion
         prefs = getSharedPreferences(AnchorPrefs.FILE_NAME, Context.MODE_PRIVATE)
         Log.d(TAG, "AppBlockerService connected")
 
@@ -50,7 +60,8 @@ class AppBlockerService : AccessibilityService() {
                 "eventTime" to event.eventTime,
                 "isOwnPkg" to (packageName == applicationContext.packageName),
                 "isIgnored" to ignoredPackages.contains(packageName)
-            )
+            ),
+            storageContext = this
         )
         // #endregion
 
@@ -71,7 +82,8 @@ class AppBlockerService : AccessibilityService() {
                 "pkg" to packageName,
                 "geofenceActive" to geofenceActive,
                 "isInsideGeofence" to isInsideGeofence
-            )
+            ),
+            storageContext = this
         )
         // #endregion
 
@@ -102,7 +114,8 @@ class AppBlockerService : AccessibilityService() {
                 "now" to now,
                 "jailbreakActive" to jailbreakActive,
                 "willLaunchBlock" to (inBlockedSet && !jailbreakActive)
-            )
+            ),
+            storageContext = this
         )
         // #endregion
 
@@ -146,7 +159,8 @@ class AppBlockerService : AccessibilityService() {
             data = mapOf(
                 "pkg" to blockedPackage,
                 "ts" to System.currentTimeMillis()
-            )
+            ),
+            storageContext = this
         )
         // #endregion
         val intent = Intent(this, BlockActivity::class.java).apply {

@@ -2,6 +2,8 @@ package com.example.anchor
 
 import android.Manifest
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,6 +12,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.accessibility.AccessibilityManager
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +21,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.revenuecat.purchases.Purchases
 import com.revenuecat.purchases.PurchasesConfiguration
@@ -56,8 +60,29 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // #region agent log
+        AnchorDebugLog.init(this)
+        // #endregion
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
+        // #region agent log
+        findViewById<MaterialButton>(R.id.btnCopyDebugLog)?.setOnClickListener {
+            val text = AnchorDebugLog.readAll()
+            if (text.isBlank()) {
+                Toast.makeText(this, "Debug log is empty", Toast.LENGTH_SHORT).show()
+            } else {
+                val clip = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                clip.setPrimaryClip(ClipData.newPlainText("anchor-debug", text))
+                Toast.makeText(this, "Debug log copied (${text.lines().size} lines)", Toast.LENGTH_SHORT).show()
+            }
+        }
+        findViewById<MaterialButton>(R.id.btnCopyDebugLog)?.setOnLongClickListener {
+            AnchorDebugLog.clear()
+            Toast.makeText(this, "Debug log cleared", Toast.LENGTH_SHORT).show()
+            true
+        }
+        // #endregion
 
         TelemetryTracker.logEvent("app_opened")
         Purchases.configure(PurchasesConfiguration.Builder(this, REVENUECAT_KEY).build())
@@ -108,6 +133,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        // #region agent log
+        AnchorDebugLog.log(
+            hypothesisId = "H3",
+            location = "MainActivity.kt:onResume",
+            message = "app_foregrounded",
+            data = mapOf("ts" to System.currentTimeMillis()),
+            storageContext = this
+        )
+        // #endregion
+
         TelemetryTracker.registerDeviceIfNeeded(this);
         val isEnabled = isAccessibilityServiceEnabled()
 
